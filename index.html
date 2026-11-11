@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>KEVANIX Barber</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<meta name="theme-color" content="#111827">
+<style>
+:root{--bg:#f3f4f6;--card:#fff;--tx:#111827;--mu:#6b7280;--bd:#e5e7eb;--pr:#b45309;--pr2:#92400e;--side:#111827;--ok:#059669;--er:#dc2626}
+*{box-sizing:border-box}body{margin:0;font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--tx)}
+button,input,select,textarea{font:inherit}
+.lay{display:flex;min-height:100vh}
+.side{width:220px;background:var(--side);color:#e5e7eb;flex-shrink:0;display:flex;flex-direction:column}
+.side .logo{padding:16px;font-weight:800;font-size:17px;letter-spacing:.5px}.side .logo span{color:#f59e0b}
+.side a{display:block;padding:10px 16px;color:#d1d5db;text-decoration:none;cursor:pointer;border-left:3px solid transparent}
+.side a:hover{background:#1f2937}.side a.on{background:#1f2937;border-color:#f59e0b;color:#fff}
+.side .foot{margin-top:auto;padding:12px 16px;font-size:12px;color:#9ca3af}
+.main{flex:1;min-width:0;padding:18px}
+.top{display:none}
+h2{margin:0 0 14px;font-size:20px}h3{margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px}.kpi b{display:block;font-size:20px;margin-top:4px}.kpi small{color:var(--mu)}
+label{display:block;font-size:12px;color:var(--mu);margin:6px 0 2px}
+input,select,textarea{width:100%;padding:8px;border:1px solid #d1d5db;border-radius:7px;background:#fff;color:var(--tx)}
+input[type=checkbox]{width:auto}
+.btn{padding:8px 13px;border:1px solid #d1d5db;background:#fff;border-radius:7px;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#f9fafb}.btn.p{background:var(--pr);border-color:var(--pr);color:#fff}.btn.p:hover{background:var(--pr2)}
+.btn.d{color:var(--er);border-color:#fecaca}.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}.btn.s{padding:4px 8px;font-size:12px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+table{width:100%;border-collapse:collapse}th,td{padding:7px 6px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:top}th{font-size:12px;color:var(--mu);font-weight:600}
+.tw{overflow-x:auto}.r{text-align:right}.muted{color:var(--mu);font-size:12px}
+.bad{display:inline-block;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:600;background:#f3f4f6}
+.bad.er{background:#fee2e2;color:#991b1b}.bad.ok{background:#d1fae5;color:#065f46}.bad.wa{background:#fef3c7;color:#92400e}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-start;justify-content:center;z-index:50;overflow-y:auto;padding:30px 10px}
+.modal.hidden{display:none}.mbox{background:#fff;border-radius:12px;padding:18px;width:100%;max-width:560px}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 16px;border-radius:8px;display:none;z-index:60}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chips label{display:flex;gap:5px;align-items:center;border:1px solid var(--bd);padding:5px 8px;border-radius:20px;margin:0;color:var(--tx);cursor:pointer;font-size:13px}
+/* agenda */
+.aggrid{display:flex;overflow-x:auto;border:1px solid var(--bd);border-radius:10px;background:#fff}
+.agtime{width:52px;flex-shrink:0;position:relative;border-right:1px solid var(--bd)}
+.agtime div{position:absolute;right:4px;font-size:11px;color:var(--mu);transform:translateY(-6px)}
+.agcol{flex:1;min-width:165px;border-right:1px solid var(--bd)}
+.aghead{height:38px;padding:9px;font-weight:700;border-bottom:3px solid;text-align:center;white-space:nowrap;overflow:hidden}
+.agbody{position:relative}
+.slot{position:absolute;left:0;right:0;border-top:1px dashed #f0f0f0;cursor:pointer}.slot:hover{background:#fffbeb}
+.tb{position:absolute;left:3px;right:3px;border-radius:6px;padding:3px 6px;font-size:12px;overflow:hidden;cursor:pointer;border-left:4px solid;line-height:1.25}
+.blk{position:absolute;left:0;right:0;background:repeating-linear-gradient(45deg,#f3f4f6,#f3f4f6 6px,#e5e7eb 6px,#e5e7eb 12px);font-size:11px;color:#6b7280;padding:3px 6px;pointer-events:none}
+.nowl{position:absolute;left:0;right:0;border-top:2px solid var(--er);z-index:3;pointer-events:none}
+.st-pendiente{background:#fef3c7;border-color:#d97706}.st-confirmado{background:#dbeafe;border-color:#2563eb}.st-atencion{background:#ede9fe;border-color:#7c3aed}
+.st-finalizado{background:#d1fae5;border-color:#059669}.st-cancelado{background:#f3f4f6;border-color:#9ca3af;color:#9ca3af;text-decoration:line-through}.st-noasistio{background:#fee2e2;border-color:#dc2626}
+.mcal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.mcal div{background:#fff;border:1px solid var(--bd);border-radius:6px;min-height:62px;padding:4px;font-size:12px;cursor:pointer}.mcal .hd{min-height:auto;background:none;border:0;text-align:center;color:var(--mu);cursor:default}
+/* pos */
+.pos{display:grid;grid-template-columns:1fr 400px;gap:14px}
+.cat{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:8px}
+.cat button{padding:10px;border:1px solid var(--bd);background:#fff;border-radius:8px;cursor:pointer;text-align:left}.cat button:hover{border-color:var(--pr)}.cat button small{display:block;color:var(--mu)}
+.tabs{display:flex;gap:6px;margin-bottom:10px}.tabs .btn.on{background:#111827;color:#fff}
+.tot{font-size:22px;font-weight:800}
+#print{display:none}
+@media print{body *{visibility:hidden}#print,#print *{visibility:visible}#print{display:block;position:absolute;left:0;top:0}}
+.tk{font:12px/1.35 monospace;color:#000}.tk .c{text-align:center}.tk table td{border:0;padding:1px 0}.tk hr{border:0;border-top:1px dashed #000}
+@media(max-width:860px){
+ .side{position:fixed;left:-240px;top:0;bottom:0;z-index:40;transition:.2s}.side.open{left:0}
+ .top{display:flex;align-items:center;gap:10px;background:var(--side);color:#fff;padding:10px 14px;position:sticky;top:0;z-index:30}
+ .top button{background:none;border:0;color:#fff;font-size:22px}
+ .main{padding:12px}.pos{grid-template-columns:1fr}.g3{grid-template-columns:1fr 1fr}
+}
+.login{max-width:360px;margin:9vh auto;padding:0 14px}.login .logo{font-size:26px;font-weight:800;text-align:center;margin-bottom:18px}.login .logo span{color:var(--pr)}
+.sync{display:inline-block;width:8px;height:8px;border-radius:50%;background:#9ca3af;margin-right:5px}.sync.ok{background:#10b981}.sync.err{background:#ef4444}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal" class="modal hidden" onclick="if(event.target===this)closeModal()"><div class="mbox" id="mbox"></div></div>
+<div id="toast"></div>
+<div id="print"></div>
+<script>
+/* ===================== KEVANIX Barber – MVP ===================== */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const gs=n=>'Gs. '+Math.round(+n||0).toLocaleString('es-PY');
+const z2=n=>String(n).padStart(2,'0');
+const ymd=(d=new Date())=>d.getFullYear()+'-'+z2(d.getMonth()+1)+'-'+z2(d.getDate());
+const toMin=h=>{if(!h)return 0;const[a,b]=h.split(':');return +a*60+ +b};
+const hm=m=>z2(Math.floor(m/60))+':'+z2(m%60);
+const nowMin=()=>{const d=new Date();return d.getHours()*60+d.getMinutes()};
+const addDays=(s,n)=>{const d=new Date(s+'T12:00');d.setDate(d.getDate()+n);return ymd(d)};
+const fdate=s=>s?s.split('-').reverse().join('/'):'';
+const num=v=>+String(v||0).replace(/\./g,'').replace(',','.')||0;
+const opt=(v,t,sel)=>`<option value="${esc(v)}" ${v==sel?'selected':''}>${esc(t)}</option>`;
+function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',2600)}
+
+const COLS=['config','usuarios','servicios','productos','clientes','turnos','bloqueos','walkins','ventas','cajas','gastos','adelantos','liquidaciones','audit'];
+const EST={pendiente:'Pendiente',confirmado:'Confirmado',atencion:'En atención',finalizado:'Finalizado',cancelado:'Cancelado',noasistio:'No asistió'};
+const MEDIOS=['Efectivo','Tarjeta débito','Tarjeta crédito','Transferencia','QR','Billetera electrónica'];
+const GCATS=['Alquiler','Energía eléctrica','Agua','Internet','Limpieza','Insumos','Sueldos','Mantenimiento','Publicidad','Otros'];
+const BCATS=['Junior','Senior','Master'];
+
+function seed(){
+ return {
+  config:[{id:'main',nombre:'Mi Barbería',ruc:'',dir:'',tel:'',abre:'08:00',cierra:'20:00',slot:15,ticket:80,descMax:10,inactivoDias:30,maxNoShow:2,pie:'¡Gracias por tu visita!'}],
+  usuarios:[
+   {id:'u1',nombre:'Administrador',rol:'admin',pin:'1234',activo:true},
+   {id:'u2',nombre:'Recepción',rol:'recepcion',pin:'1111',activo:true},
+   {id:'b1',nombre:'Carlos',rol:'barbero',pin:'2222',activo:true,color:'#2563eb',categoria:'Senior',comServ:50,comProd:10,comCat:{Color:40}},
+   {id:'b2',nombre:'Diego',rol:'barbero',pin:'3333',activo:true,color:'#059669',categoria:'Junior',comServ:45,comProd:10,comCat:{}}],
+  servicios:[
+   {id:'s1',tipo:'servicio',nombre:'Corte',cat:'Corte',precio:50000,precios:{Master:70000},dur:30,limp:5,insumo:3000,activo:true},
+   {id:'s2',tipo:'servicio',nombre:'Barba',cat:'Barba',precio:30000,precios:{},dur:20,limp:5,insumo:2000,activo:true},
+   {id:'s3',tipo:'servicio',nombre:'Cejas',cat:'Cejas',precio:15000,precios:{},dur:10,limp:0,insumo:500,activo:true},
+   {id:'s4',tipo:'servicio',nombre:'Colorimetría',cat:'Color',precio:150000,precios:{},dur:60,limp:10,insumo:25000,activo:true},
+   {id:'c1',tipo:'combo',nombre:'Corte + Barba',cat:'Combo',items:['s1','s2'],precio:70000,activo:true},
+   {id:'c2',tipo:'combo',nombre:'Combo Full (Corte+Barba+Cejas)',cat:'Combo',items:['s1','s2','s3'],precio:85000,activo:true}],
+  productos:[
+   {id:'p1',nombre:'Pomada mate',tipo:'venta',costo:35000,precio:60000,stock:10,min:3,prov:''},
+   {id:'p2',nombre:'Cera brillo',tipo:'venta',costo:30000,precio:55000,stock:6,min:3,prov:''},
+   {id:'p3',nombre:'Minoxidil 60ml',tipo:'venta',costo:70000,precio:120000,stock:4,min:2,prov:''},
+   {id:'p4',nombre:'Cuchillas (unidad)',tipo:'insumo',costo:1500,precio:0,stock:100,min:20,prov:''},
+   {id:'p5',nombre:'Papel cuello (rollo)',tipo:'insumo',costo:8000,precio:0,stock:10,min:3,prov:''}],
+ };
+}
+let db; try{db=JSON.parse(localStorage.getItem('kxb_db'))}catch(e){} if(!db)db=seed();
+COLS.forEach(c=>db[c]=db[c]||[]);
+const cfg=()=>db.config[0]||(db.config[0]={id:'main'});
+const get=(c,id)=>db[c].find(x=>x.id===id);
+const user=id=>get('usuarios',id);
+const barberos=(all)=>db.usuarios.filter(u=>u.rol==='barbero'&&(all||u.activo!==false));
+const svc=id=>get('servicios',id);
+const cliName=id=>(get('clientes',id)||{}).nombre||'Sin cliente';
+const svcNames=ids=>(ids||[]).map(i=>(svc(i)||{}).nombre||'?').join(' + ');
+function persist(){try{localStorage.setItem('kxb_db',JSON.stringify(db))}catch(e){toast('Almacenamiento lleno')}}
+function save(col,o){if(!o.id)o.id=uid();o._ts=Date.now();const a=db[col],i=a.findIndex(x=>x.id===o.id);if(i>=0)a[i]=o;else a.push(o);persist();remoteSet(col,o);return o}
+function del(col,id){db[col]=db[col].filter(x=>x.id!==id);persist();remoteDel(col,id)}
+function audit(acc,det){save('audit',{id:uid(),ts:new Date().toLocaleString('es-PY'),t:Date.now(),user:me?me.nombre:'-',acc,det});if(db.audit.length>1500){db.audit.sort((a,b)=>a.t-b.t);const x=db.audit.shift();remoteDel('audit',x.id)}}
+
+/* ---------- Sincronización Firebase (opcional) ---------- */
+let fs=null,emp=null,syncSt='off';
+const DEF_FB={apiKey:"AIzaSyDfU8NKQibyOJslq3G3lVrkuy0aEqLe1t0",authDomain:"kevanix-barber.firebaseapp.com",projectId:"kevanix-barber",storageBucket:"kevanix-barber.firebasestorage.app",messagingSenderId:"459876630114",appId:"1:459876630114:web:4af51b80cea43398f29b3b"};
+function fbRef(col){return fs.collection('barberias').doc(emp).collection(col)}
+function remoteSet(col,o){if(fs)fbRef(col).doc(o.id).set(JSON.parse(JSON.stringify(o))).catch(e=>{syncSt='err';console.warn(e)})}
+function remoteDel(col,id){if(fs)fbRef(col).doc(id).delete().catch(()=>{})}
+const loadScript=src=>new Promise((ok,ko)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=ko;document.head.appendChild(s)});
+async function initRemote(){
+ let c;try{c=JSON.parse(localStorage.getItem('kxb_fb'))}catch(e){} if(!c||!c.config)c={config:DEF_FB,empresa:'principal'};if(!location.protocol.startsWith('http'))return;
+ try{
+  const v='10.12.2',b=`https://www.gstatic.com/firebasejs/${v}/`;
+  await loadScript(b+'firebase-app-compat.js');await loadScript(b+'firebase-auth-compat.js');await loadScript(b+'firebase-firestore-compat.js');
+  firebase.initializeApp(c.config);
+  try{await firebase.auth().signInAnonymously()}catch(e){console.warn('auth',e)}
+  fs=firebase.firestore();try{await fs.enablePersistence({synchronizeTabs:true})}catch(e){}
+  emp=c.empresa||'principal';syncSt='ok';
+  try{const s=await fbRef('usuarios').limit(1).get();if(s.empty)await pushAll(true)}catch(e){console.warn(e)}
+  COLS.forEach(col=>fbRef(col).onSnapshot(snap=>{
+   let ch=false;snap.docChanges().forEach(d=>{if(d.doc.metadata.hasPendingWrites)return;const o=d.doc.data(),a=db[col],i=a.findIndex(x=>x.id===o.id);
+    if(d.type==='removed'){if(i>=0){a.splice(i,1);ch=true}}else if(i<0){a.push(o);ch=true}else if((o._ts||0)>=(a[i]._ts||0)){a[i]=o;ch=true}});
+   if(ch){persist();softRender()}
+  },e=>{syncSt='err';console.warn(e);softRender()}));
+  softRender();
+ }catch(e){syncSt='err';console.warn(e)}
+}
+async function pushAll(q){if(!fs)return toast('Primero conectá Firebase');let n=0;for(const col of COLS)for(let i=0;i<db[col].length;i+=400){const b=fs.batch();db[col].slice(i,i+400).forEach(o=>{b.set(fbRef(col).doc(o.id),JSON.parse(JSON.stringify(o)));n++});await b.commit()}if(!q)toast(n+' registros subidos')}
+
+/* ---------- Sesión y menú ---------- */
+let me=null;try{me=user(sessionStorage.getItem('kxb_u'))||null}catch(e){}
+let route=sessionStorage.getItem('kxb_r')||'dash';
+const MENU=[['dash','📊','Inicio',['admin','recepcion']],['agenda','📅','Agenda',['admin','recepcion']],['walkin','🚶','Walk-ins',['admin','recepcion']],
+ ['pos','💳','Cobrar (POS)',['admin','recepcion']],['caja','💰','Caja',['admin','recepcion']],['clientes','👤','Clientes',['admin','recepcion']],
+ ['barberos','✂️','Barberos y comisiones',['admin']],['catalogo','📋','Servicios y combos',['admin']],['inventario','📦','Inventario',['admin']],
+ ['finanzas','📈','Gastos y rentabilidad',['admin']],['mipanel','🧔','Mi panel',['barbero']],['config','⚙️','Configuración',['admin']],['audit','🕵️','Auditoría',['admin']]];
+function go(r){route=r;sessionStorage.setItem('kxb_r',r);render();window.scrollTo(0,0)}
+function logout(){me=null;sessionStorage.removeItem('kxb_u');render()}
+function login(){const u=user($('#lU').value);if(!u||String(u.pin)!==$('#lP').value)return toast('PIN incorrecto');me=u;sessionStorage.setItem('kxb_u',u.id);audit('Inicio de sesión',u.nombre);route=u.rol==='barbero'?'mipanel':'dash';render()}
+let rT=null;function softRender(){clearTimeout(rT);rT=setTimeout(()=>{const a=document.activeElement;if(!$('#modal').classList.contains('hidden'))return;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))return;render()},400)}
+function render(){
+ const app=$('#app');
+ if(!me){const us=db.usuarios.filter(u=>u.activo!==false);
+  app.innerHTML=`<div class="login"><div class="logo">✂️ KEVANIX <span>Barber</span></div><div class="card"><h3>${esc(cfg().nombre)}</h3>
+  <label>Usuario</label><select id="lU">${us.map(u=>opt(u.id,u.nombre+' ('+u.rol+')')).join('')}</select>
+  <label>PIN</label><input id="lP" type="password" inputmode="numeric" onkeydown="if(event.key==='Enter')login()">
+  <div class="btns"><button class="btn p" style="width:100%" onclick="login()">Ingresar</button></div>
+  <p class="muted">Demo: Admin 1234 · Recepción 1111 · Carlos 2222 · Diego 3333</p></div></div>`;return}
+ me=user(me.id)||me;
+ const items=MENU.filter(m=>m[3].includes(me.rol));if(!items.find(m=>m[0]===route))route=items[0][0];
+ const ca=cajaAbierta();
+ app.innerHTML=`<div class="top"><button onclick="$('.side').classList.toggle('open')">☰</button><b>KEVANIX Barber</b></div>
+ <div class="lay"><nav class="side"><div class="logo">✂️ KEVANIX <span>Barber</span></div>
+ ${items.map(m=>`<a class="${m[0]===route?'on':''}" onclick="go('${m[0]}')">${m[1]} ${m[2]}</a>`).join('')}
+ <div class="foot"><div><span class="sync ${syncSt}"></span>${syncSt==='ok'?'Sincronizado':syncSt==='err'?'Error de sync':'Modo local'}</div>
+ <div>${me.rol!=='barbero'?(ca?'Caja abierta':'Caja cerrada'):''}</div><div style="margin:6px 0">${esc(me.nombre)} · ${me.rol}</div><a style="padding:0" onclick="logout()">🚪 Salir</a></div></nav>
+ <main class="main" id="view">${V[route]()}</main></div>`;
+ if(V[route+'After'])V[route+'After']();
+}
+function openModal(h){$('#mbox').innerHTML=h;$('#modal').classList.remove('hidden')}
+function closeModal(){$('#modal').classList.add('hidden');$('#mbox').innerHTML=''}
+const can=(...r)=>me&&r.includes(me.rol);
+function askAdmin(motivo){if(me.rol==='admin')return true;const p=prompt('Autorización requerida: '+motivo+'\nPIN de administrador:');if(p==null)return false;const ok=db.usuarios.some(u=>u.rol==='admin'&&u.activo!==false&&String(u.pin)===p);if(!ok)toast('PIN de admin incorrecto');return ok}
+
+/* ---------- Helpers de negocio ---------- */
+function svcDur(ids){return(ids||[]).reduce((s,i)=>{const x=svc(i);if(!x)return s;if(x.tipo==='combo')return s+svcDur(x.items);return s+(+x.dur||0)+(+x.limp||0)},0)}
+function svcInsumo(id){const x=svc(id);if(!x)return 0;return x.tipo==='combo'?x.items.reduce((s,i)=>s+svcInsumo(i),0):(+x.insumo||0)}
+function precioSvc(x,bid){const b=user(bid),c=b&&b.categoria;if(x.tipo!=='combo'&&c&&x.precios&&+x.precios[c])return +x.precios[c];return +x.precio||0}
+function bloqueosDe(bid,f){return db.bloqueos.filter(x=>(x.barberoId==='all'||x.barberoId===bid)&&x.fd<=f&&x.fh>=f)}
+function conflicto(bid,f,ini,dur,exId){
+ const c=cfg();if(ini<toMin(c.abre)||ini+dur>toMin(c.cierra))return 'Fuera del horario del local ('+c.abre+'–'+c.cierra+')';
+ for(const t of db.turnos){if(t.id===exId||t.barberoId!==bid||t.fecha!==f||['cancelado','noasistio'].includes(t.estado))continue;const s=toMin(t.hora);if(ini<s+t.dur&&s<ini+dur)return 'Choca con el turno de '+t.hora+' ('+cliName(t.clienteId)+')'}
+ for(const x of bloqueosDe(bid,f)){const s=toMin(x.desde||c.abre),e=toMin(x.hasta||c.cierra);if(ini<e&&s<ini+dur)return 'Horario bloqueado: '+x.motivo}
+ return null}
+function primerLibre(bid,f,desde,dur){const c=cfg();let m=Math.max(desde,toMin(c.abre));const step=5;while(m+dur<=toMin(c.cierra)){if(!conflicto(bid,f,m,dur))return m;m+=step}return null}
+function noShows(cid){return db.turnos.filter(t=>t.clienteId===cid&&t.estado==='noasistio').length}
+function findOrCreateClient(nombre,tel){nombre=(nombre||'').trim();tel=(tel||'').trim();if(!nombre&&!tel)return '';
+ let c=(tel&&db.clientes.find(x=>x.tel===tel))||(nombre&&db.clientes.find(x=>x.nombre.toLowerCase()===nombre.toLowerCase()));
+ if(!c){c=save('clientes',{id:uid(),nombre:nombre||tel,tel,email:'',nac:'',alergias:'',notas:'',creado:ymd()})}else if(tel&&!c.tel){c.tel=tel;save('clientes',c)}return c.id}
+function waLink(tel,msg){let d=String(tel||'').replace(/\D/g,'');if(d.startsWith('0'))d='595'+d.slice(1);return 'https://wa.me/'+d+'?text='+encodeURIComponent(msg)}
+function svcChecks(sel,onch){const l=db.servicios.filter(s=>s.activo!==false);return l.map(s=>`<label><input type="checkbox" class="svck" value="${s.id}" ${sel.includes(s.id)?'checked':''} onchange="${onch||''}">${esc(s.nombre)} <span class="muted">${s.tipo==='combo'?'combo':svcDur([s.id])+'′'}</span></label>`).join('')}
+const checked=()=>$$('.svck:checked').map(e=>e.value);
+function cajaAbierta(){return db.cajas.find(c=>c.estado==='abierta')}
+function ventasVal(){return db.ventas.filter(v=>!v.anulada)}
+function calcCom(v){const r={},sub=v.sub||0,f=sub>0?v.total/sub:1;
+ for(const it of v.items){if(!it.barberoId)continue;const b=user(it.barberoId);if(!b)continue;const o=r[b.id]=r[b.id]||{com:0,serv:0,prod:0,ns:0,np:0};const base=it.precio*it.cant*f;
+  if(it.tipo==='producto'){const c=base*(+b.comProd||0)/100;o.com+=c;o.prod+=base;o.np+=it.cant;it._com=c}
+  else{const x=svc(it.ref)||{};const cat=x.tipo==='combo'?'Combo':x.cat;const cc=b.comCat||{};const pct=(cc[cat]!==undefined&&cc[cat]!=='')?+cc[cat]:(+b.comServ||0);const ins=svcInsumo(it.ref)*it.cant;const c=Math.max(0,base-ins)*pct/100;o.com+=c;o.serv+=base;o.ns+=it.cant;it._com=c;it._ins=ins;it._pct=pct}}
+ return r}
+
+/* ===================== VISTAS ===================== */
+const V={};
+
+/* ---------- Inicio / KPIs ---------- */
+V.dash=()=>{
+ const h=ymd(),mes=h.slice(0,7),vh=ventasVal().filter(v=>v.fecha===h),vm=ventasVal().filter(v=>v.fecha.startsWith(mes));
+ const tot=vh.reduce((s,v)=>s+v.total,0),totm=vm.reduce((s,v)=>s+v.total,0);
+ const th=db.turnos.filter(t=>t.fecha===h&&t.estado!=='cancelado');
+ const d30=addDays(h,-30),pas=db.turnos.filter(t=>t.fecha>=d30&&t.fecha<=h&&['finalizado','noasistio'].includes(t.estado)),ns=pas.filter(t=>t.estado==='noasistio').length;
+ const c=cfg(),hrs=(toMin(c.cierra)-toMin(c.abre))*barberos().length,ocu=th.reduce((s,t)=>s+t.dur,0);
+ const rk={},sv={};vm.forEach(v=>{const cc=calcCom(v);for(const b in cc){rk[b]=rk[b]||{f:0,n:0,p:0};rk[b].f+=cc[b].serv+cc[b].prod;rk[b].n+=cc[b].ns;rk[b].p+=cc[b].prod}
+  v.items.forEach(i=>{if(i.tipo!=='producto'){sv[i.nombre]=sv[i.nombre]||{n:0,f:0};sv[i.nombre].n+=i.cant;sv[i.nombre].f+=i.precio*i.cant}})});
+ // horas pico (últimos 60 días)
+ const hp={};db.turnos.filter(t=>t.fecha>=addDays(h,-60)&&t.estado==='finalizado').forEach(t=>{const k=t.hora.slice(0,2);hp[k]=(hp[k]||0)+1});
+ const hpMax=Math.max(1,...Object.values(hp));
+ const stockB=db.productos.filter(p=>+p.stock<=+p.min),md=h.slice(5),cumple=db.clientes.filter(x=>x.nac&&x.nac.slice(5)===md);
+ const cli=new Set(vm.map(v=>v.clienteId).filter(Boolean)),prev=addDays(mes+'-01',-1).slice(0,7),cliPrev=new Set(ventasVal().filter(v=>v.fecha.startsWith(prev)).map(v=>v.clienteId).filter(Boolean));
+ const ret=cliPrev.size?Math.round([...cliPrev].filter(x=>cli.has(x)).length/cliPrev.size*100):0;
+ return `<h2>Inicio · ${fdate(h)}</h2>
+ <div class="kpis"><div class="kpi"><small>Ventas de hoy</small><b>${gs(tot)}</b><small>${vh.length} tickets</small></div>
+ <div class="kpi"><small>Ticket promedio (hoy)</small><b>${gs(vh.length?tot/vh.length:0)}</b></div>
+ <div class="kpi"><small>Turnos de hoy</small><b>${th.length}</b><small>${th.filter(t=>t.estado==='finalizado').length} finalizados</small></div>
+ <div class="kpi"><small>Ocupación hoy</small><b>${hrs?Math.round(ocu/hrs*100):0}%</b></div>
+ <div class="kpi"><small>No-shows (30 días)</small><b>${pas.length?Math.round(ns/pas.length*100):0}%</b></div>
+ <div class="kpi"><small>Ventas del mes</small><b>${gs(totm)}</b></div>
+ <div class="kpi"><small>Retención vs mes anterior</small><b>${ret}%</b></div></div>
+ <div class="g2" style="align-items:start">
+ <div class="card"><h3>Ranking de barberos (mes)</h3><table><tr><th>Barbero</th><th class="r">Servicios</th><th class="r">Productos</th><th class="r">Facturado</th></tr>
+ ${Object.entries(rk).sort((a,b)=>b[1].f-a[1].f).map(([b,o])=>`<tr><td>${esc((user(b)||{}).nombre)}</td><td class="r">${o.n}</td><td class="r">${gs(o.p)}</td><td class="r">${gs(o.f)}</td></tr>`).join('')||'<tr><td colspan=4 class="muted">Sin ventas</td></tr>'}</table></div>
+ <div class="card"><h3>Servicios estrella (mes)</h3><table><tr><th>Servicio</th><th class="r">Cant.</th><th class="r">Facturado</th></tr>
+ ${Object.entries(sv).sort((a,b)=>b[1].f-a[1].f).slice(0,8).map(([n,o])=>`<tr><td>${esc(n)}</td><td class="r">${o.n}</td><td class="r">${gs(o.f)}</td></tr>`).join('')||'<tr><td colspan=3 class="muted">Sin datos</td></tr>'}</table></div>
+ <div class="card"><h3>Horas pico (60 días)</h3>${Object.keys(hp).sort().map(k=>`<div class="row" style="flex-wrap:nowrap"><span style="width:44px">${k}:00</span><div style="height:14px;background:#f59e0b;border-radius:4px;width:${hp[k]/hpMax*100}%"></div><span class="muted">${hp[k]}</span></div>`).join('')||'<p class="muted">Sin datos aún</p>'}</div>
+ <div class="card"><h3>Alertas</h3>${stockB.map(p=>`<div>📦 Stock bajo: <b>${esc(p.nombre)}</b> (${p.stock})</div>`).join('')}
+ ${cumple.map(x=>`<div>🎂 Cumpleaños: <b>${esc(x.nombre)}</b> ${x.tel?`<a target="_blank" href="${waLink(x.tel,'¡Feliz cumpleaños '+x.nombre+'! 🎉 Te esperamos en '+cfg().nombre)}">WhatsApp</a>`:''}</div>`).join('')}
+ ${!stockB.length&&!cumple.length?'<p class="muted">Sin alertas</p>':''}</div></div>`};
+
+/* ---------- Agenda ---------- */
+let agD=ymd(),agV='dia',agB='all';
+V.agenda=()=>{
+ const bs=barberos().filter(b=>agB==='all'||b.id===agB);
+ let h=`<h2>Agenda</h2><div class="card row">
+ <button class="btn" onclick="agMove(-1)">◀</button><input type="date" style="width:auto" value="${agD}" onchange="agD=this.value;render()"><button class="btn" onclick="agMove(1)">▶</button><button class="btn" onclick="agD=ymd();render()">Hoy</button>
+ <div class="tabs" style="margin:0">${['dia','semana','mes'].map(v=>`<button class="btn ${agV===v?'on':''}" onclick="agV='${v}';render()">${v[0].toUpperCase()+v.slice(1)}</button>`).join('')}</div>
+ <select style="width:auto" onchange="agB=this.value;render()">${opt('all','Todos los barberos',agB)}${barberos().map(b=>opt(b.id,b.nombre,agB)).join('')}</select>
+ <button class="btn p" onclick="turnoModal()">+ Turno</button><button class="btn" onclick="bloqueoModal()">⛔ Bloqueo</button></div>
+ <div class="row" style="margin-bottom:8px">${Object.keys(EST).map(e=>`<span class="bad st-${e}" style="border-left:4px solid">${EST[e]}</span>`).join('')}</div>`;
+ if(!bs.length)return h+'<div class="card">No hay barberos activos. Creálos en “Barberos y comisiones”.</div>';
+ if(agV==='dia'){
+  const c=cfg(),a=toMin(c.abre),zz=toMin(c.cierra),k=1.6,sl=+c.slot||15;
+  let tc=`<div class="agtime"><div style="height:38px;position:static"></div><div style="position:relative;height:${(zz-a)*k}px">`;for(let m=a;m<zz;m+=30)tc+=`<div style="top:${(m-a)*k}px">${hm(m)}</div>`;tc+='</div></div>';
+  const nl=agD===ymd()&&nowMin()>=a&&nowMin()<=zz?`<div class="nowl" style="top:${(nowMin()-a)*k}px"></div>`:'';
+  h+=`<div class="aggrid">${tc}${bs.map(b=>{let s='';for(let m=a;m<zz;m+=sl)s+=`<div class="slot" style="top:${(m-a)*k}px;height:${sl*k}px" onclick="turnoModal(null,'${b.id}','${agD}',${m})"></div>`;
+   const bl=bloqueosDe(b.id,agD).map(x=>{const s1=Math.max(a,toMin(x.desde||c.abre)),e1=Math.min(zz,toMin(x.hasta||c.cierra));return `<div class="blk" style="top:${(s1-a)*k}px;height:${(e1-s1)*k}px">⛔ ${esc(x.motivo)}</div>`}).join('');
+   const ts=db.turnos.filter(t=>t.fecha===agD&&t.barberoId===b.id).map(t=>`<div class="tb st-${t.estado}" style="top:${(toMin(t.hora)-a)*k}px;height:${Math.max(t.dur*k-2,20)}px" onclick="event.stopPropagation();turnoModal('${t.id}')"><b>${t.hora}</b> ${esc(cliName(t.clienteId))}<br><small>${esc(svcNames(t.servicios))}</small></div>`).join('');
+   return `<div class="agcol"><div class="aghead" style="border-color:${b.color||'#999'}">${esc(b.nombre)}</div><div class="agbody" style="height:${(zz-a)*k}px">${s}${bl}${ts}${nl}</div></div>`}).join('')}</div>`;
+ }else if(agV==='semana'){
+  const d0=new Date(agD+'T12:00'),lun=addDays(agD,-((d0.getDay()+6)%7)),dias=[...Array(7)].map((_,i)=>addDays(lun,i)),dn=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  h+=`<div class="card tw"><table><tr><th>Barbero</th>${dias.map((d,i)=>`<th style="cursor:pointer" onclick="agD='${d}';agV='dia';render()">${dn[i]} ${d.slice(8)}</th>`).join('')}</tr>
+  ${bs.map(b=>`<tr><td><b>${esc(b.nombre)}</b></td>${dias.map(d=>`<td>${bloqueosDe(b.id,d).map(x=>`<div class="bad">⛔ ${esc(x.motivo)}</div>`).join('')}${db.turnos.filter(t=>t.fecha===d&&t.barberoId===b.id).sort((x,y)=>x.hora.localeCompare(y.hora)).map(t=>`<div class="tb st-${t.estado}" style="position:static;margin-bottom:3px" onclick="turnoModal('${t.id}')">${t.hora} ${esc(cliName(t.clienteId))}</div>`).join('')}</td>`).join('')}</tr>`).join('')}</table></div>`;
+ }else{
+  const y=+agD.slice(0,4),mo=+agD.slice(5,7)-1,f1=new Date(y,mo,1),off=(f1.getDay()+6)%7,nd=new Date(y,mo+1,0).getDate();
+  h+=`<div class="card"><h3>${f1.toLocaleDateString('es-PY',{month:'long',year:'numeric'})}</h3><div class="mcal">${['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(x=>`<div class="hd">${x}</div>`).join('')}${'<div class="hd"></div>'.repeat(off)}
+  ${[...Array(nd)].map((_,i)=>{const d=ymd(new Date(y,mo,i+1)),ts=db.turnos.filter(t=>t.fecha===d&&t.estado!=='cancelado'&&bs.some(b=>b.id===t.barberoId));return `<div onclick="agD='${d}';agV='dia';render()" style="${d===ymd()?'border-color:var(--pr)':''}"><b>${i+1}</b>${ts.length?`<div class="bad wa">${ts.length} turnos</div>`:''}</div>`}).join('')}</div></div>`;
+ }
+ const fb=db.bloqueos.filter(x=>x.fh>=ymd()).sort((a,b)=>a.fd.localeCompare(b.fd));
+ if(fb.length)h+=`<div class="card"><h3>Bloqueos vigentes</h3><table>${fb.map(x=>`<tr><td>${x.barberoId==='all'?'Todos':esc((user(x.barberoId)||{}).nombre)}</td><td>${fdate(x.fd)}${x.fh!==x.fd?' → '+fdate(x.fh):''}</td><td>${x.desde?x.desde+'–'+x.hasta:'Todo el día'}</td><td>${esc(x.motivo)}</td><td class="r"><button class="btn s d" onclick="delBloqueo('${x.id}')">Quitar</button></td></tr>`).join('')}</table></div>`;
+ return h};
+function agMove(n){agD=addDays(agD,agV==='dia'?n:agV==='semana'?7*n:0);if(agV==='mes'){const d=new Date(agD+'T12:00');d.setMonth(d.getMonth()+n);agD=ymd(d)}render()}
+function turnoModal(id,bid,fecha,min){
+ const t=id?get('turnos',id):{fecha:fecha||agD,hora:min!=null?hm(min):'',barberoId:bid||(agB!=='all'?agB:(barberos()[0]||{}).id),clienteId:'',servicios:[],estado:'pendiente',nota:''};
+ const cl=get('clientes',t.clienteId);
+ openModal(`<h3>${id?'Turno':'Nuevo turno'}</h3>
+ <div class="g2"><div><label>Fecha</label><input type="date" id="tF" value="${t.fecha}"></div><div><label>Hora</label><input type="time" id="tH" step="300" value="${t.hora}"></div></div>
+ <label>Barbero</label><select id="tB">${barberos().map(b=>opt(b.id,b.nombre+(b.categoria?' · '+b.categoria:''),t.barberoId)).join('')}</select>
+ <div class="g2"><div><label>Cliente</label><input id="tC" list="dlC" value="${cl?esc(cl.nombre):''}" placeholder="Nombre" onchange="tcFill()"></div><div><label>Celular</label><input id="tT" inputmode="tel" value="${cl?esc(cl.tel||''):''}" onchange="tcFill(1)"></div></div>
+ <datalist id="dlC">${db.clientes.map(c=>`<option value="${esc(c.nombre)}">${esc(c.tel||'')}</option>`).join('')}</datalist>
+ <div id="tWarn"></div>
+ <label>Servicios</label><div class="chips">${svcChecks(t.servicios,'updDur()')}</div>
+ <div id="tDur" class="muted" style="margin-top:6px"></div>
+ <div class="g2"><div><label>Estado</label><select id="tE">${Object.keys(EST).map(e=>opt(e,EST[e],t.estado)).join('')}</select></div><div><label>Nota</label><input id="tN" value="${esc(t.nota||'')}"></div></div>
+ <div class="btns"><button class="btn p" onclick="saveTurno(${id?`'${id}'`:'null'})">Guardar</button>
+ ${id?`<button class="btn ok" onclick="cobrarTurno('${id}')">💳 Cobrar</button>
+ ${cl&&cl.tel?`<a class="btn" target="_blank" href="${waLink(cl.tel,`Hola ${cl.nombre}, te recordamos tu turno en ${cfg().nombre} el ${fdate(t.fecha)} a las ${t.hora} con ${(user(t.barberoId)||{}).nombre}. Respondé SÍ para confirmar o CANCELAR.`)}">📲 Recordatorio</a>`:''}
+ ${can('admin')?`<button class="btn d" onclick="delTurno('${id}')">Eliminar</button>`:''}`:''}
+ <button class="btn" onclick="closeModal()">Cerrar</button></div>`);
+ tcFill();updDur();
+}
+function tcFill(byTel){const n=$('#tC').value.trim().toLowerCase(),tl=$('#tT').value.trim();const c=byTel?db.clientes.find(x=>x.tel&&x.tel===tl):db.clientes.find(x=>x.nombre.toLowerCase()===n);
+ let w='';if(c){if(byTel)$('#tC').value=c.nombre;else if(!tl)$('#tT').value=c.tel||'';const ns=noShows(c.id);if(ns>=(+cfg().maxNoShow||2))w+=`<div class="bad er">⚠ ${ns} inasistencias previas</div> `;if(c.alergias)w+=`<div class="bad wa">Alergias: ${esc(c.alergias)}</div>`}
+ else if(n)w='<span class="muted">Cliente nuevo: se registrará al guardar</span>';$('#tWarn').innerHTML=w}
+function updDur(){const ids=checked(),b=$('#tB')?$('#tB').value:null;$('#tDur').textContent=ids.length?`Duración total: ${svcDur(ids)} min (incluye limpieza) · Precio aprox.: ${gs(ids.reduce((s,i)=>s+precioSvc(svc(i),b),0))}`:''}
+function saveTurno(id){
+ const f=$('#tF').value,h=$('#tH').value,b=$('#tB').value,ids=checked(),e=$('#tE').value;
+ if(!f||!h||!b)return toast('Completá fecha, hora y barbero');if(!ids.length)return toast('Elegí al menos un servicio');
+ const dur=svcDur(ids),cf=['cancelado','noasistio'].includes(e)?null:conflicto(b,f,toMin(h),dur,id);
+ if(cf&&!confirm(cf+'\n\n¿Guardar de todos modos?'))return;
+ const cid=findOrCreateClient($('#tC').value,$('#tT').value);
+ const old=id?get('turnos',id):null;
+ const t=save('turnos',{...(old||{}),id:id||uid(),fecha:f,hora:h,barberoId:b,clienteId:cid,servicios:ids,dur,estado:e,nota:$('#tN').value,creado:old?old.creado:Date.now(),por:old?old.por:me.nombre});
+ if(old&&old.estado!==e&&['cancelado','noasistio'].includes(e))audit('Turno '+EST[e].toLowerCase(),`${fdate(f)} ${h} ${cliName(cid)}`);
+ closeModal();toast('Turno guardado');render()}
+function delTurno(id){const t=get('turnos',id);if(!confirm('¿Eliminar este turno?'))return;del('turnos',id);audit('Eliminó reserva',`${fdate(t.fecha)} ${t.hora} ${cliName(t.clienteId)}`);closeModal();render()}
+function cobrarTurno(id){const t=get('turnos',id);if(t.estado!=='finalizado'){t.estado='atencion';save('turnos',t)}
+ cartNew();cart.clienteId=t.clienteId;cart.turnoId=id;cart.barberoId=t.barberoId;t.servicios.forEach(s=>addItem('s',s,true));closeModal();go('pos')}
+function bloqueoModal(){openModal(`<h3>Bloqueo de agenda</h3><p class="muted">Almuerzo, día libre, vacaciones, capacitación o mantenimiento.</p>
+ <label>Barbero</label><select id="xB">${opt('all','Todo el local')}${barberos().map(b=>opt(b.id,b.nombre)).join('')}</select>
+ <div class="g2"><div><label>Desde fecha</label><input type="date" id="xFd" value="${agD}"></div><div><label>Hasta fecha</label><input type="date" id="xFh" value="${agD}"></div></div>
+ <label><input type="checkbox" id="xTd" onchange="$('#xHr').style.display=this.checked?'none':'grid'"> Todo el día</label>
+ <div class="g2" id="xHr"><div><label>Hora desde</label><input type="time" id="xD" value="12:00"></div><div><label>Hora hasta</label><input type="time" id="xH" value="13:00"></div></div>
+ <label>Motivo</label><select id="xM">${['Almuerzo','Día libre','Vacaciones','Capacitación','Mantenimiento de sillón','Otro'].map(x=>opt(x,x)).join('')}</select>
+ <div class="btns"><button class="btn p" onclick="saveBloqueo()">Guardar</button><button class="btn" onclick="closeModal()">Cancelar</button></div>`)}
+function saveBloqueo(){const td=$('#xTd').checked,fd=$('#xFd').value,fh=$('#xFh').value||fd;if(!fd||fh<fd)return toast('Revisá las fechas');
+ save('bloqueos',{id:uid(),barberoId:$('#xB').value,fd,fh,desde:td?'':$('#xD').value,hasta:td?'':$('#xH').value,motivo:$('#xM').value});closeModal();toast('Bloqueo registrado');render()}
+function delBloqueo(id){if(confirm('¿Quitar bloqueo?')){del('bloqueos',id);render()}}
+
+/* ---------- Walk-ins ---------- */
+function estimarCola(){
+ const h=ymd(),n=nowMin(),free={};
+ barberos().forEach(b=>free[b.id]=n);
+ const cola=db.walkins.filter(w=>w.estado==='espera').sort((a,b)=>a.llegada-b.llegada);
+ return cola.map(w=>{const dur=svcDur(w.servicios)||30;let best=null;
+  for(const b of barberos()){if(w.pref&&w.pref!==b.id)continue;const m=primerLibre(b.id,h,free[b.id],dur);if(m!=null&&(best==null||m<best.m))best={b:b.id,m}}
+  if(best){free[best.b]=best.m+dur}return {w,dur,best,espera:best?best.m-n:null}})}
+V.walkin=()=>{const est=estimarCola();
+ return `<h2>Walk-ins (clientes sin cita)</h2>
+ <div class="card"><h3>Agregar a la cola</h3><div class="g3"><div><label>Nombre</label><input id="wN" list="dlW"></div><div><label>Celular (opcional)</label><input id="wT" inputmode="tel"></div>
+ <div><label>Barbero preferido</label><select id="wP">${opt('','Primero disponible')}${barberos().map(b=>opt(b.id,b.nombre)).join('')}</select></div></div>
+ <datalist id="dlW">${db.clientes.map(c=>`<option value="${esc(c.nombre)}">`).join('')}</datalist>
+ <label>Servicios</label><div class="chips">${svcChecks([])}</div><div class="btns"><button class="btn p" onclick="addWalk()">Agregar a la cola</button></div></div>
+ <div class="card"><h3>Cola de espera (${est.length})</h3>${est.length?`<div class="tw"><table><tr><th>#</th><th>Cliente</th><th>Servicios</th><th>Llegó</th><th>Espera estimada</th><th>Sugerido</th><th></th></tr>
+ ${est.map((e,i)=>`<tr><td>${i+1}</td><td><b>${esc(e.w.nombre)}</b></td><td>${esc(svcNames(e.w.servicios))} <span class="muted">(${e.dur}′)</span></td><td>${new Date(e.w.llegada).toLocaleTimeString('es-PY',{hour:'2-digit',minute:'2-digit'})}</td>
+ <td>${e.best?(e.espera<=0?'<span class="bad ok">Ahora</span>':`~${e.espera} min (${hm(e.best.m)})`):'<span class="bad er">Sin lugar hoy</span>'}</td><td>${e.best?esc(user(e.best.b).nombre):'-'}</td>
+ <td class="r"><select id="wa_${e.w.id}" style="width:auto">${barberos().map(b=>opt(b.id,b.nombre,e.best&&e.best.b)).join('')}</select> <button class="btn s ok" onclick="asignarWalk('${e.w.id}')">Atender</button> <button class="btn s d" onclick="quitarWalk('${e.w.id}')">✕</button></td></tr>`).join('')}</table></div>`:'<p class="muted">No hay clientes esperando.</p>'}</div>`};
+function addWalk(){const n=$('#wN').value.trim(),ids=checked();if(!n)return toast('Ingresá el nombre');if(!ids.length)return toast('Elegí servicio(s)');
+ save('walkins',{id:uid(),nombre:n,clienteId:findOrCreateClient(n,$('#wT').value),servicios:ids,pref:$('#wP').value,llegada:Date.now(),estado:'espera'});toast('Agregado a la cola');render()}
+function asignarWalk(id){const w=get('walkins',id),b=$('#wa_'+id).value,dur=svcDur(w.servicios),h=ymd(),m=primerLibre(b,h,nowMin(),dur);
+ const ini=m!=null&&m-nowMin()<=5?m:nowMin();const r=Math.ceil(ini/5)*5;
+ const cf=conflicto(b,h,r,dur);if(cf&&!confirm(cf+'\n\n¿Atender igual ahora?'))return;
+ const t=save('turnos',{id:uid(),fecha:h,hora:hm(r),barberoId:b,clienteId:w.clienteId,servicios:w.servicios,dur,estado:'atencion',nota:'Walk-in',creado:Date.now(),por:me.nombre});
+ w.estado='asignado';w.turnoId=t.id;save('walkins',w);toast('Asignado a '+user(b).nombre);render()}
+function quitarWalk(id){const w=get('walkins',id);w.estado='retirado';save('walkins',w);render()}
+
+/* ---------- POS ---------- */
+let cart,posTab='servicio';
+function cartNew(){cart={items:[],clienteId:'',turnoId:'',barberoId:(barberos()[0]||{}).id||'',dTipo:'monto',dVal:0,cupon:'',propina:0,pagos:[{medio:'Efectivo',monto:0}],factura:''}}
+cartNew();
+function addItem(t,id,silent){
+ if(t==='p'){const p=get('productos',id);if(+p.stock<=0&&!confirm('Sin stock registrado. ¿Agregar igual?'))return;const ex=cart.items.find(i=>i.ref===id);if(ex)ex.cant++;else cart.items.push({k:uid(),tipo:'producto',ref:id,nombre:p.nombre,precio:+p.precio,cant:1,barberoId:cart.barberoId})}
+ else{const s=svc(id);cart.items.push({k:uid(),tipo:s.tipo,ref:id,nombre:s.nombre,precio:precioSvc(s,cart.barberoId),cant:1,barberoId:cart.barberoId})}
+ if(!silent)render()}
+function totales(){const sub=cart.items.reduce((s,i)=>s+i.precio*i.cant,0);let d=cart.dTipo==='%'?sub*(+cart.dVal||0)/100:(+cart.dVal||0);d=Math.min(d,sub);return {sub,desc:Math.round(d),total:Math.round(sub-d),cobrar:Math.round(sub-d)+(+cart.propina||0)}}
+V.pos=()=>{const T=totales(),pag=cart.pagos.reduce((s,p)=>s+(+p.monto||0),0),dif=pag-T.cobrar,ca=cajaAbierta();
+ const list=posTab==='producto'?db.productos.filter(p=>p.tipo==='venta').map(p=>`<button onclick="addItem('p','${p.id}')"><b>${esc(p.nombre)}</b><small>${gs(p.precio)} · stock ${p.stock}</small></button>`)
+  :db.servicios.filter(s=>s.activo!==false&&(posTab==='combo'?s.tipo==='combo':s.tipo!=='combo')).map(s=>`<button onclick="addItem('s','${s.id}')"><b>${esc(s.nombre)}</b><small>${gs(precioSvc(s,cart.barberoId))} · ${svcDur([s.id])}′</small></button>`);
+ const cl=get('clientes',cart.clienteId);
+ return `<h2>Cobrar (POS)</h2>${ca?'':`<div class="card" style="border-color:#fca5a5">⚠ No hay caja abierta. <button class="btn s p" onclick="go('caja')">Abrir caja</button></div>`}
+ <div class="pos"><div><div class="tabs">${[['servicio','Servicios'],['combo','Combos'],['producto','Productos']].map(([k,t])=>`<button class="btn ${posTab===k?'on':''}" onclick="posTab='${k}';render()">${t}</button>`).join('')}</div>
+ <div class="cat">${list.join('')||'<p class="muted">Sin ítems</p>'}</div></div>
+ <div class="card"><div class="g2"><div><label>Cliente</label><input id="pC" list="dlP" value="${cl?esc(cl.nombre):''}" placeholder="Consumidor final" onchange="posCli()"><datalist id="dlP">${db.clientes.map(c=>`<option value="${esc(c.nombre)}">${esc(c.tel||'')}</option>`).join('')}</datalist></div>
+ <div><label>Barbero (por defecto)</label><select onchange="cart.barberoId=this.value;render()">${barberos().map(b=>opt(b.id,b.nombre,cart.barberoId)).join('')}</select></div></div>
+ ${cart.turnoId?`<div class="muted" style="margin-top:4px">Cobrando turno de ${esc(cliName(cart.clienteId))}</div>`:''}
+ <table style="margin-top:8px"><tr><th>Ítem</th><th>Cant</th><th class="r">Importe</th><th></th></tr>
+ ${cart.items.map(i=>`<tr><td>${esc(i.nombre)}<br><select class="s" style="padding:2px;font-size:12px;width:auto" onchange="lineB('${i.k}',this.value)">${barberos().map(b=>opt(b.id,b.nombre,i.barberoId)).join('')}</select>
+ <input style="width:95px;padding:2px;font-size:12px" value="${i.precio}" onchange="lineP('${i.k}',this.value)" ${can('admin')?'':'readonly'} title="Precio"></td>
+ <td><input type="number" min="1" style="width:55px;padding:4px" value="${i.cant}" onchange="lineQ('${i.k}',this.value)"></td><td class="r">${gs(i.precio*i.cant)}</td><td><button class="btn s d" onclick="lineDel('${i.k}')">✕</button></td></tr>`).join('')||'<tr><td colspan=4 class="muted">Agregá servicios o productos</td></tr>'}</table>
+ <div class="row" style="justify-content:space-between;margin-top:8px"><span>Subtotal</span><b>${gs(T.sub)}</b></div>
+ <div class="g3"><div><label>Descuento</label><select onchange="cart.dTipo=this.value;render()">${opt('monto','Gs.',cart.dTipo)}${opt('%','%',cart.dTipo)}</select></div><div><label>&nbsp;</label><input value="${cart.dVal||''}" onchange="cart.dVal=num(this.value);render()"></div><div><label>Cupón/motivo</label><input value="${esc(cart.cupon)}" onchange="cart.cupon=this.value"></div></div>
+ <div class="row" style="justify-content:space-between;margin-top:8px"><span>Total a facturar</span><span class="tot">${gs(T.total)}</span></div>
+ <label>Propina para el barbero (no se factura)</label><input value="${cart.propina||''}" onchange="cart.propina=num(this.value);render()">
+ <label>Pagos ${T.propina?'':''}(total a cobrar ${gs(T.cobrar)})</label>
+ ${cart.pagos.map((p,i)=>`<div class="row" style="flex-wrap:nowrap;margin-bottom:4px"><select onchange="cart.pagos[${i}].medio=this.value">${MEDIOS.map(m=>opt(m,m,p.medio)).join('')}</select><input value="${p.monto||''}" onchange="cart.pagos[${i}].monto=num(this.value);render()" placeholder="Monto"><button class="btn s" onclick="cart.pagos[${i}].monto=Math.max(0,${T.cobrar}-cart.pagos.reduce((s,x,j)=>j===${i}?s:s+(+x.monto||0),0));render()">Resto</button>${i?`<button class="btn s d" onclick="cart.pagos.splice(${i},1);render()">✕</button>`:''}</div>`).join('')}
+ <button class="btn s" onclick="cart.pagos.push({medio:'Transferencia',monto:0});render()">+ Pago mixto</button>
+ <div style="margin-top:8px">${dif<0?`<span class="bad er">Falta ${gs(-dif)}</span>`:dif>0?`<span class="bad ok">Vuelto ${gs(dif)}</span>`:T.cobrar?'<span class="bad ok">Pago exacto</span>':''}</div>
+ <label>Nº de factura (opcional)</label><input value="${esc(cart.factura)}" onchange="cart.factura=this.value" placeholder="001-001-0000000">
+ <div class="btns"><button class="btn p" style="flex:1" onclick="cobrar()">Cobrar ${gs(T.cobrar)}</button><button class="btn" onclick="cartNew();render()">Vaciar</button></div></div></div>`};
+function posCli(){const n=$('#pC').value.trim();cart.clienteId=n?findOrCreateClient(n,''):''}
+function lineB(k,b){const i=cart.items.find(x=>x.k===k);i.barberoId=b;if(i.tipo==='servicio')i.precio=precioSvc(svc(i.ref),b);render()}
+function lineQ(k,v){cart.items.find(x=>x.k===k).cant=Math.max(1,+v||1);render()}
+function lineP(k,v){const i=cart.items.find(x=>x.k===k),o=i.precio;i.precio=num(v);if(o!==i.precio)audit('Modificó precio en POS',`${i.nombre}: ${gs(o)} → ${gs(i.precio)}`);render()}
+function lineDel(k){cart.items=cart.items.filter(x=>x.k!==k);render()}
+function cobrar(){
+ const ca=cajaAbierta();if(!ca)return toast('Abrí la caja primero');if(!cart.items.length)return toast('Ticket vacío');
+ const T=totales();const pct=T.sub?T.desc/T.sub*100:0;
+ if(T.desc>0&&pct>(+cfg().descMax||0)&&!askAdmin(`descuento de ${pct.toFixed(1)}%`))return;
+ const pag=cart.pagos.filter(p=>+p.monto>0).map(p=>({medio:p.medio,monto:+p.monto})),sum=pag.reduce((s,p)=>s+p.monto,0);
+ if(sum<T.cobrar)return toast('El pago no cubre el total');
+ const noEf=pag.filter(p=>p.medio!=='Efectivo').reduce((s,p)=>s+p.monto,0);if(noEf>T.cobrar)return toast('Pagos electrónicos superan el total');
+ let vuelto=sum-T.cobrar;const ef=pag.find(p=>p.medio==='Efectivo');if(ef)ef.monto-=vuelto;
+ const nro=db.ventas.reduce((m,v)=>Math.max(m,v.nro||0),0)+1;
+ const v=save('ventas',{id:uid(),nro,fecha:ymd(),ts:Date.now(),hora:hm(nowMin()),clienteId:cart.clienteId,barberoId:cart.barberoId,turnoId:cart.turnoId,items:cart.items.map(i=>({...i})),sub:T.sub,desc:T.desc,cupon:cart.cupon,total:T.total,propina:+cart.propina||0,pagos:pag,vuelto,factura:cart.factura,cajaId:ca.id,usuario:me.nombre,anulada:false});
+ v.items.filter(i=>i.tipo==='producto').forEach(i=>{const p=get('productos',i.ref);if(p){p.stock=(+p.stock||0)-i.cant;save('productos',p)}});
+ if(cart.turnoId){const t=get('turnos',cart.turnoId);if(t){t.estado='finalizado';t.ventaId=v.id;save('turnos',t)}}
+ if(T.desc>0)audit('Aplicó descuento',`Ticket ${nro}: ${gs(T.desc)} ${cart.cupon}`);
+ cartNew();render();ticketModal(v.id)}
+function ticketHTML(v){const c=cfg(),cl=get('clientes',v.clienteId);
+ return `<div class="tk" style="width:${c.ticket==58?'54mm':'76mm'};padding:2mm"><div class="c"><b>${esc(c.nombre)}</b><br>${c.ruc?'RUC: '+esc(c.ruc)+'<br>':''}${esc(c.dir||'')}${c.tel?'<br>Tel: '+esc(c.tel):''}</div><hr>
+ Ticket Nº ${v.nro}${v.factura?'<br>Factura: '+esc(v.factura):''}<br>${fdate(v.fecha)} ${v.hora}<br>Cliente: ${esc(cl?cl.nombre:'Consumidor final')}<br>Atendió: ${esc([...new Set(v.items.map(i=>(user(i.barberoId)||{}).nombre))].join(', '))}<hr>
+ <table style="width:100%">${v.items.map(i=>`<tr><td>${i.cant} ${esc(i.nombre)}</td><td style="text-align:right">${(i.precio*i.cant).toLocaleString('es-PY')}</td></tr>`).join('')}</table><hr>
+ <table style="width:100%"><tr><td>Subtotal</td><td style="text-align:right">${v.sub.toLocaleString('es-PY')}</td></tr>${v.desc?`<tr><td>Descuento</td><td style="text-align:right">-${v.desc.toLocaleString('es-PY')}</td></tr>`:''}
+ <tr><td><b>TOTAL Gs.</b></td><td style="text-align:right"><b>${v.total.toLocaleString('es-PY')}</b></td></tr>${v.propina?`<tr><td>Propina</td><td style="text-align:right">${v.propina.toLocaleString('es-PY')}</td></tr>`:''}
+ ${v.pagos.map(p=>`<tr><td>${esc(p.medio)}</td><td style="text-align:right">${p.monto.toLocaleString('es-PY')}</td></tr>`).join('')}${v.vuelto?`<tr><td>Vuelto</td><td style="text-align:right">${v.vuelto.toLocaleString('es-PY')}</td></tr>`:''}</table><hr>
+ <div class="c">${esc(c.pie||'')}${v.factura?'':'<br>Comprobante interno - no válido como factura'}</div>${v.anulada?'<div class="c"><b>*** ANULADO ***</b></div>':''}</div>`}
+function printHTML(h){if(window.KXPrint&&KXPrint.postMessage){KXPrint.postMessage(h);return}$('#print').innerHTML=h;setTimeout(()=>window.print(),50)}
+function ticketModal(id){const v=get('ventas',id),cl=get('clientes',v.clienteId);
+ const msg=`*${cfg().nombre}*\nTicket Nº ${v.nro} - ${fdate(v.fecha)}\n`+v.items.map(i=>`${i.cant} x ${i.nombre}: ${gs(i.precio*i.cant)}`).join('\n')+(v.desc?`\nDescuento: -${gs(v.desc)}`:'')+`\n*Total: ${gs(v.total)}*\n${cfg().pie||''}`;
+ openModal(`<h3>${v.anulada?'Ticket anulado':'✅ Cobro registrado'}</h3><div style="border:1px solid var(--bd);padding:8px;max-height:50vh;overflow:auto">${ticketHTML(v)}</div>
+ <div class="btns"><button class="btn p" onclick="printHTML(ticketHTML(get('ventas','${id}')))">🖨 Imprimir</button>${cl&&cl.tel?`<a class="btn ok" target="_blank" href="${waLink(cl.tel,msg)}">📲 Enviar por WhatsApp</a>`:''}
+ ${!v.anulada&&can('admin')?`<button class="btn d" onclick="anular('${id}')">Anular</button>`:''}<button class="btn" onclick="closeModal()">Cerrar</button></div>`)}
+function anular(id){const v=get('ventas',id);const m=prompt('Motivo de anulación:');if(!m)return;v.anulada=true;v.motivoAnul=m;save('ventas',v);
+ v.items.filter(i=>i.tipo==='producto').forEach(i=>{const p=get('productos',i.ref);if(p){p.stock=(+p.stock||0)+i.cant;save('productos',p)}});
+ audit('Anuló ticket',`Nº ${v.nro} ${gs(v.total)} – ${m}`);closeModal();toast('Ticket anulado');render()}
+
+/* ---------- Caja ---------- */
+function resumenCaja(c){const vs=db.ventas.filter(v=>v.cajaId===c.id&&!v.anulada),pm={};MEDIOS.forEach(m=>pm[m]=0);vs.forEach(v=>v.pagos.forEach(p=>pm[p.medio]=(pm[p.medio]||0)+p.monto));
+ const ret=(c.movs||[]).filter(m=>m.tipo==='retiro').reduce((s,m)=>s+m.monto,0),ing=(c.movs||[]).filter(m=>m.tipo==='ingreso').reduce((s,m)=>s+m.monto,0),gas=db.gastos.filter(g=>g.cajaId===c.id).reduce((s,g)=>s+g.monto,0);
+ return {vs,pm,ret,ing,gas,fact:vs.reduce((s,v)=>s+v.total,0),prop:vs.reduce((s,v)=>s+(v.propina||0),0),esperado:(+c.inicial||0)+pm['Efectivo']+ing-ret-gas}}
+V.caja=()=>{const c=cajaAbierta();
+ if(!c){const hist=db.cajas.filter(x=>x.estado==='cerrada').sort((a,b)=>b.abreTs-a.abreTs).slice(0,20);
+  return `<h2>Caja</h2><div class="card"><h3>Apertura de caja</h3><label>Efectivo inicial (fondo)</label><input id="cI" inputmode="numeric"><div class="btns"><button class="btn p" onclick="abrirCaja()">Abrir caja</button></div></div>
+  <div class="card"><h3>Cierres anteriores</h3><div class="tw"><table><tr><th>Apertura</th><th>Cierre</th><th>Usuario</th><th class="r">Facturado</th><th class="r">Esperado</th><th class="r">Contado</th><th class="r">Diferencia</th><th></th></tr>
+  ${hist.map(x=>`<tr><td>${x.abre}</td><td>${x.cierra}</td><td>${esc(x.usuario)}</td><td class="r">${gs(x.res.fact)}</td><td class="r">${gs(x.res.esperado)}</td><td class="r">${gs(x.contado)}</td><td class="r"><span class="bad ${x.dif<0?'er':x.dif>0?'wa':'ok'}">${gs(x.dif)}</span></td><td><button class="btn s" onclick="printCierre('${x.id}')">🖨</button></td></tr>`).join('')||'<tr><td colspan=8 class="muted">Sin cierres</td></tr>'}</table></div></div>`}
+ const r=resumenCaja(c);
+ return `<h2>Caja abierta</h2><div class="kpis"><div class="kpi"><small>Abierta</small><b style="font-size:15px">${c.abre}</b><small>${esc(c.usuario)}</small></div>
+ <div class="kpi"><small>Fondo inicial</small><b>${gs(c.inicial)}</b></div><div class="kpi"><small>Facturado (${r.vs.length} tickets)</small><b>${gs(r.fact)}</b></div>
+ <div class="kpi"><small>Propinas cobradas</small><b>${gs(r.prop)}</b></div><div class="kpi"><small>Efectivo esperado en caja</small><b>${gs(r.esperado)}</b></div></div>
+ <div class="g2" style="align-items:start"><div class="card"><h3>Ingresos por medio de pago</h3><table>${Object.entries(r.pm).map(([m,v])=>`<tr><td>${m}</td><td class="r">${gs(v)}</td></tr>`).join('')}
+ <tr><td>Retiros / caja chica</td><td class="r">-${gs(r.ret)}</td></tr><tr><td>Ingresos extra</td><td class="r">${gs(r.ing)}</td></tr><tr><td>Gastos pagados con caja</td><td class="r">-${gs(r.gas)}</td></tr></table></div>
+ <div class="card"><h3>Movimiento manual</h3><div class="g2"><div><label>Tipo</label><select id="mT">${opt('retiro','Retiro / caja chica')}${opt('ingreso','Ingreso de efectivo')}</select></div><div><label>Monto</label><input id="mM" inputmode="numeric"></div></div>
+ <label>Motivo</label><input id="mR"><div class="btns"><button class="btn" onclick="movCaja()">Registrar</button></div>
+ ${(c.movs||[]).map(m=>`<div class="muted">${m.hora} · ${m.tipo} ${gs(m.monto)} – ${esc(m.motivo)}</div>`).join('')}</div></div>
+ <div class="card"><h3>Arqueo y cierre</h3><div class="g2"><div><label>Efectivo contado</label><input id="cC" inputmode="numeric" oninput="$('#cDif').innerHTML='Diferencia: <b>'+gs(num(this.value)-${r.esperado})+'</b>'"></div><div><label>Observación</label><input id="cO"></div></div>
+ <p id="cDif"></p><div class="btns"><button class="btn p" onclick="cerrarCaja()">Cerrar caja</button></div></div>
+ <div class="card"><h3>Tickets del turno</h3><div class="tw"><table><tr><th>Nº</th><th>Hora</th><th>Cliente</th><th class="r">Total</th><th>Pago</th><th></th></tr>
+ ${db.ventas.filter(v=>v.cajaId===c.id).sort((a,b)=>b.nro-a.nro).map(v=>`<tr style="${v.anulada?'opacity:.5;text-decoration:line-through':''}"><td>${v.nro}</td><td>${v.hora}</td><td>${esc(cliName(v.clienteId))}</td><td class="r">${gs(v.total)}</td><td>${v.pagos.map(p=>p.medio).join(' + ')}</td><td><button class="btn s" onclick="ticketModal('${v.id}')">Ver</button></td></tr>`).join('')||'<tr><td colspan=6 class="muted">Sin ventas</td></tr>'}</table></div></div>`};
+function abrirCaja(){if(cajaAbierta())return;const d=new Date();save('cajas',{id:uid(),estado:'abierta',inicial:num($('#cI').value),abre:d.toLocaleString('es-PY'),abreTs:d.getTime(),usuario:me.nombre,movs:[]});audit('Abrió caja',gs(num($('#cI').value)));render()}
+function movCaja(){const c=cajaAbierta(),m=num($('#mM').value);if(!m)return toast('Monto inválido');c.movs=c.movs||[];c.movs.push({tipo:$('#mT').value,monto:m,motivo:$('#mR').value,hora:hm(nowMin()),user:me.nombre});save('cajas',c);audit('Movimiento de caja',`${$('#mT').value} ${gs(m)} ${$('#mR').value}`);render()}
+function cerrarCaja(){const c=cajaAbierta();if($('#cC').value==='')return toast('Ingresá el efectivo contado');const r=resumenCaja(c),ct=num($('#cC').value);
+ if(!confirm(`Esperado ${gs(r.esperado)}\nContado ${gs(ct)}\nDiferencia ${gs(ct-r.esperado)}\n\n¿Cerrar caja?`))return;
+ Object.assign(c,{estado:'cerrada',cierra:new Date().toLocaleString('es-PY'),contado:ct,dif:ct-r.esperado,obs:$('#cO').value,res:{fact:r.fact,esperado:r.esperado,pm:r.pm,ret:r.ret,ing:r.ing,gas:r.gas,prop:r.prop,n:r.vs.length},cerro:me.nombre});
+ save('cajas',c);audit('Cerró caja',`Dif. ${gs(c.dif)}`);render();printCierre(c.id)}
+function printCierre(id){const c=get('cajas',id),r=c.res;printHTML(`<div class="tk" style="width:76mm;padding:2mm"><div class="c"><b>${esc(cfg().nombre)}</b><br>CIERRE DE CAJA</div><hr>Apertura: ${c.abre}<br>Cierre: ${c.cierra}<br>Usuario: ${esc(c.cerro||c.usuario)}<hr>
+ <table style="width:100%"><tr><td>Fondo inicial</td><td style="text-align:right">${gs(c.inicial)}</td></tr>${Object.entries(r.pm).map(([m,v])=>`<tr><td>${m}</td><td style="text-align:right">${gs(v)}</td></tr>`).join('')}
+ <tr><td>Retiros</td><td style="text-align:right">-${gs(r.ret)}</td></tr><tr><td>Gastos</td><td style="text-align:right">-${gs(r.gas)}</td></tr><tr><td>Ingresos</td><td style="text-align:right">${gs(r.ing)}</td></tr>
+ <tr><td>Facturado (${r.n})</td><td style="text-align:right">${gs(r.fact)}</td></tr><tr><td>Propinas</td><td style="text-align:right">${gs(r.prop)}</td></tr></table><hr>
+ <table style="width:100%"><tr><td>Esperado</td><td style="text-align:right">${gs(r.esperado)}</td></tr><tr><td>Contado</td><td style="text-align:right">${gs(c.contado)}</td></tr><tr><td><b>Diferencia</b></td><td style="text-align:right"><b>${gs(c.dif)}</b></td></tr></table>${c.obs?'<hr>'+esc(c.obs):''}</div>`)}
+
+/* ---------- Clientes ---------- */
+let cliF='',cliM='todos';
+function cliStats(id){const vs=ventasVal().filter(v=>v.clienteId===id).sort((a,b)=>b.ts-a.ts),tot=vs.reduce((s,v)=>s+v.total,0),bc={};vs.forEach(v=>v.items.forEach(i=>{if(i.barberoId)bc[i.barberoId]=(bc[i.barberoId]||0)+1}));
+ const fav=Object.entries(bc).sort((a,b)=>b[1]-a[1])[0];return {vs,tot,n:vs.length,prom:vs.length?tot/vs.length:0,ult:vs[0]?vs[0].fecha:'',fav:fav?(user(fav[0])||{}).nombre:''}}
+V.clientes=()=>{const d=+cfg().inactivoDias||30,lim=addDays(ymd(),-d),mes=ymd().slice(5,7);
+ let l=db.clientes.map(c=>({c,s:cliStats(c.id)}));
+ if(cliF){const f=cliF.toLowerCase();l=l.filter(x=>x.c.nombre.toLowerCase().includes(f)||(x.c.tel||'').includes(f))}
+ if(cliM==='inactivos')l=l.filter(x=>x.s.ult&&x.s.ult<lim);if(cliM==='cumple')l=l.filter(x=>x.c.nac&&x.c.nac.slice(5,7)===mes);
+ l.sort((a,b)=>a.c.nombre.localeCompare(b.c.nombre));
+ return `<h2>Clientes (${db.clientes.length})</h2><div class="card row"><input style="flex:1;min-width:180px" placeholder="Buscar nombre o celular" value="${esc(cliF)}" oninput="cliF=this.value;clearTimeout(window._cf);window._cf=setTimeout(()=>{render();const e=$('#view input');e.focus();e.setSelectionRange(99,99)},350)">
+ <div class="tabs" style="margin:0">${[['todos','Todos'],['inactivos',`Inactivos +${d} días`],['cumple','Cumpleaños del mes']].map(([k,t])=>`<button class="btn ${cliM===k?'on':''}" onclick="cliM='${k}';render()">${t}</button>`).join('')}</div><button class="btn p" onclick="cliModal()">+ Cliente</button></div>
+ <div class="card tw"><table><tr><th>Cliente</th><th>Celular</th><th class="r">Visitas</th><th>Última</th><th class="r">Gasto prom.</th><th>Barbero frecuente</th><th></th></tr>
+ ${l.slice(0,300).map(({c,s})=>`<tr><td><a href="#" onclick="cliModal('${c.id}');return false"><b>${esc(c.nombre)}</b></a>${noShows(c.id)?` <span class="bad er">${noShows(c.id)} no-show</span>`:''}</td><td>${esc(c.tel||'')}</td><td class="r">${s.n}</td><td>${fdate(s.ult)}</td><td class="r">${gs(s.prom)}</td><td>${esc(s.fav)}</td>
+ <td class="r">${c.tel&&cliM!=='todos'?`<a class="btn s ok" target="_blank" href="${waLink(c.tel,cliM==='cumple'?`¡Feliz cumpleaños ${c.nombre}! 🎉 Este mes tenés un regalo en ${cfg().nombre}.`:`Hola ${c.nombre}, ¡te extrañamos en ${cfg().nombre}! ¿Agendamos tu próximo corte?`)}">WhatsApp</a>`:''}</td></tr>`).join('')||'<tr><td colspan=7 class="muted">Sin resultados</td></tr>'}</table></div>`};
+function cliModal(id){const c=id?get('clientes',id):{nombre:'',tel:'',email:'',nac:'',alergias:'',notas:''},s=id?cliStats(id):null;
+ openModal(`<h3>${id?'Ficha del cliente':'Nuevo cliente'}</h3>
+ <div class="g2"><div><label>Nombre</label><input id="kN" value="${esc(c.nombre)}"></div><div><label>Celular</label><input id="kT" value="${esc(c.tel)}"></div>
+ <div><label>Email</label><input id="kE" value="${esc(c.email)}"></div><div><label>Fecha de nacimiento</label><input type="date" id="kB" value="${c.nac||''}"></div></div>
+ <label>Alergias / sensibilidad</label><input id="kA" value="${esc(c.alergias)}">
+ <label>Notas técnicas del corte</label><textarea id="kO" rows="3" placeholder="Ej.: degradado medio con 0.5, barba perfilada a navaja">${esc(c.notas)}</textarea>
+ ${s?`<div class="kpis" style="margin-top:10px"><div class="kpi"><small>Visitas</small><b>${s.n}</b></div><div class="kpi"><small>Gasto total</small><b>${gs(s.tot)}</b></div><div class="kpi"><small>Promedio</small><b>${gs(s.prom)}</b></div><div class="kpi"><small>Frecuente</small><b style="font-size:15px">${esc(s.fav||'-')}</b></div></div>
+ <h3>Historial</h3><div class="tw" style="max-height:220px;overflow:auto"><table>${s.vs.map(v=>`<tr><td>${fdate(v.fecha)}</td><td>${esc(v.items.map(i=>i.nombre).join(', '))}</td><td>${esc([...new Set(v.items.map(i=>(user(i.barberoId)||{}).nombre))].join(', '))}</td><td class="r">${gs(v.total)}</td></tr>`).join('')||'<tr><td class="muted">Sin visitas</td></tr>'}</table></div>
+ <p class="muted">Turnos: ${db.turnos.filter(t=>t.clienteId===id).length} · No-shows: ${noShows(id)}</p>`:''}
+ <div class="btns"><button class="btn p" onclick="saveCli(${id?`'${id}'`:'null'})">Guardar</button>${id?`<button class="btn" onclick="closeModal();turnoModal();$('#tC').value='${esc(c.nombre.replace(/['"\\]/g,''))}';tcFill()">+ Turno</button>`:''}
+ ${id&&can('admin')?`<button class="btn d" onclick="delCli('${id}')">Eliminar</button>`:''}<button class="btn" onclick="closeModal()">Cerrar</button></div>`)}
+function saveCli(id){const n=$('#kN').value.trim();if(!n)return toast('Nombre requerido');const o=id?get('clientes',id):{id:uid(),creado:ymd()};
+ Object.assign(o,{nombre:n,tel:$('#kT').value.trim(),email:$('#kE').value.trim(),nac:$('#kB').value,alergias:$('#kA').value,notas:$('#kO').value});save('clientes',o);closeModal();toast('Cliente guardado');render()}
+function delCli(id){if(!confirm('¿Eliminar cliente? Su historial de ventas se conserva.'))return;audit('Eliminó cliente',cliName(id));del('clientes',id);closeModal();render()}
+
+/* ---------- Barberos y comisiones ---------- */
+function liqCalc(bid,d1,d2){const det=[];let com=0,prop=0,serv=0,prod=0;
+ ventasVal().filter(v=>v.fecha>=d1&&v.fecha<=d2).forEach(v=>{calcCom(v);v.items.filter(i=>i.barberoId===bid).forEach(i=>{det.push({fecha:v.fecha,nro:v.nro,nombre:i.nombre,cant:i.cant,importe:i.precio*i.cant,ins:i._ins||0,pct:i.tipo==='producto'?(+user(bid).comProd||0):i._pct,com:i._com});com+=i._com;if(i.tipo==='producto')prod+=i.precio*i.cant;else serv+=i.precio*i.cant});
+  if(v.propina&&v.barberoId===bid)prop+=v.propina});
+ const ad=db.adelantos.filter(a=>a.barberoId===bid&&a.fecha>=d1&&a.fecha<=d2&&!a.liqId),adel=ad.reduce((s,a)=>s+a.monto,0);
+ return {det,com:Math.round(com),prop,adel,ad,serv,prod,neto:Math.round(com+prop-adel)}}
+let lqB='',lqD1=addDays(ymd(),-6),lqD2=ymd();
+V.barberos=()=>{const bs=barberos(true);if(!lqB&&bs[0])lqB=bs[0].id;const L=lqB?liqCalc(lqB,lqD1,lqD2):null;
+ return `<h2>Barberos y comisiones</h2><div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Equipo</h3><button class="btn p" onclick="barbModal()">+ Barbero</button></div>
+ <div class="tw"><table><tr><th>Barbero</th><th>Categoría</th><th class="r">% servicios</th><th class="r">% productos</th><th>% por categoría</th><th>Estado</th><th></th></tr>
+ ${bs.map(b=>`<tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${b.color}"></span> <b>${esc(b.nombre)}</b></td><td>${esc(b.categoria||'')}</td><td class="r">${b.comServ}%</td><td class="r">${b.comProd}%</td><td class="muted">${Object.entries(b.comCat||{}).filter(x=>x[1]!=='').map(([k,v])=>k+': '+v+'%').join(', ')}</td><td>${b.activo!==false?'<span class="bad ok">Activo</span>':'<span class="bad">Inactivo</span>'}</td><td class="r"><button class="btn s" onclick="barbModal('${b.id}')">Editar</button> <button class="btn s" onclick="adelModal('${b.id}')">Adelanto</button></td></tr>`).join('')}</table></div></div>
+ <div class="card"><h3>Liquidación de pagos</h3><div class="row"><select style="width:auto" onchange="lqB=this.value;render()">${bs.map(b=>opt(b.id,b.nombre,lqB)).join('')}</select>
+ <input type="date" style="width:auto" value="${lqD1}" onchange="lqD1=this.value;render()"> → <input type="date" style="width:auto" value="${lqD2}" onchange="lqD2=this.value;render()">
+ <button class="btn s" onclick="lqD1=addDays(ymd(),-6);lqD2=ymd();render()">Semana</button><button class="btn s" onclick="lqD1=addDays(ymd(),-14);lqD2=ymd();render()">Quincena</button><button class="btn s" onclick="lqD1=ymd().slice(0,8)+'01';lqD2=ymd();render()">Mes</button></div>
+ ${L?`<div class="kpis" style="margin-top:10px"><div class="kpi"><small>Servicios</small><b>${gs(L.serv)}</b></div><div class="kpi"><small>Productos</small><b>${gs(L.prod)}</b></div><div class="kpi"><small>Comisiones</small><b>${gs(L.com)}</b></div><div class="kpi"><small>Propinas</small><b>${gs(L.prop)}</b></div><div class="kpi"><small>Adelantos</small><b>-${gs(L.adel)}</b></div><div class="kpi"><small>Neto a cobrar</small><b style="color:var(--ok)">${gs(L.neto)}</b></div></div>
+ <div class="tw" style="max-height:300px;overflow:auto"><table><tr><th>Fecha</th><th>Tk</th><th>Ítem</th><th class="r">Importe</th><th class="r">Insumo</th><th class="r">%</th><th class="r">Comisión</th></tr>${L.det.map(d=>`<tr><td>${fdate(d.fecha)}</td><td>${d.nro}</td><td>${d.cant} ${esc(d.nombre)}</td><td class="r">${gs(d.importe)}</td><td class="r">${d.ins?gs(d.ins):''}</td><td class="r">${d.pct}%</td><td class="r">${gs(d.com)}</td></tr>`).join('')||'<tr><td colspan=7 class="muted">Sin movimientos</td></tr>'}</table></div>
+ <div class="btns"><button class="btn p" onclick="guardarLiq()">Guardar y emitir recibo</button></div>`:''}</div>
+ <div class="card"><h3>Liquidaciones emitidas</h3><table>${db.liquidaciones.sort((a,b)=>b.t-a.t).slice(0,30).map(l=>`<tr><td>${fdate(l.fecha)}</td><td>${esc((user(l.barberoId)||{}).nombre)}</td><td>${fdate(l.d1)} → ${fdate(l.d2)}</td><td class="r">${gs(l.neto)}</td><td><button class="btn s" onclick="printLiq('${l.id}')">🖨</button></td></tr>`).join('')||'<tr><td class="muted">Ninguna</td></tr>'}</table></div>`};
+function barbModal(id){const b=id?user(id):{nombre:'',pin:'',color:'#b45309',categoria:'Junior',comServ:50,comProd:10,comCat:{},activo:true};const cats=[...new Set(db.servicios.map(s=>s.tipo==='combo'?'Combo':s.cat).filter(Boolean))];
+ openModal(`<h3>${id?'Editar':'Nuevo'} barbero</h3><div class="g2"><div><label>Nombre</label><input id="bN" value="${esc(b.nombre)}"></div><div><label>PIN de acceso</label><input id="bP" value="${esc(b.pin)}" inputmode="numeric"></div>
+ <div><label>Categoría</label><select id="bC">${BCATS.map(c=>opt(c,c,b.categoria)).join('')}</select></div><div><label>Color en agenda</label><input type="color" id="bK" value="${b.color||'#b45309'}"></div>
+ <div><label>% comisión servicios (general)</label><input id="bS" type="number" value="${b.comServ}"></div><div><label>% comisión productos</label><input id="bR" type="number" value="${b.comProd}"></div></div>
+ <label>% por categoría de servicio (vacío = usa el general)</label><div class="g3">${cats.map(c=>`<div><label>${esc(c)}</label><input class="bcc" data-c="${esc(c)}" type="number" value="${(b.comCat||{})[c]??''}"></div>`).join('')}</div>
+ <label><input type="checkbox" id="bA" ${b.activo!==false?'checked':''}> Activo</label><p class="muted">El insumo de cada servicio (configurado en Servicios) se descuenta antes de calcular la comisión.</p>
+ <div class="btns"><button class="btn p" onclick="saveBarb(${id?`'${id}'`:'null'})">Guardar</button><button class="btn" onclick="closeModal()">Cancelar</button></div>`)}
+function saveBarb(id){const n=$('#bN').value.trim(),p=$('#bP').value.trim();if(!n||!p)return toast('Nombre y PIN requeridos');const cc={};$$('.bcc').forEach(e=>{if(e.value!=='')cc[e.dataset.c]=+e.value});
+ const o=id?user(id):{id:uid(),rol:'barbero'},old=JSON.stringify([o.comServ,o.comProd,o.comCat]);Object.assign(o,{nombre:n,pin:p,categoria:$('#bC').value,color:$('#bK').value,comServ:+$('#bS').value||0,comProd:+$('#bR').value||0,comCat:cc,activo:$('#bA').checked});
+ save('usuarios',o);if(id&&old!==JSON.stringify([o.comServ,o.comProd,o.comCat]))audit('Modificó comisiones',n);closeModal();render()}
+function adelModal(bid){openModal(`<h3>Adelanto de sueldo · ${esc(user(bid).nombre)}</h3><div class="g2"><div><label>Fecha</label><input type="date" id="aF" value="${ymd()}"></div><div><label>Monto</label><input id="aM" inputmode="numeric"></div></div><label>Nota</label><input id="aN">
+ <label><input type="checkbox" id="aC" ${cajaAbierta()?'checked':''}> Retirar de la caja abierta</label>
+ <div class="btns"><button class="btn p" onclick="saveAdel('${bid}')">Guardar</button><button class="btn" onclick="closeModal()">Cancelar</button></div>
+ <h3 style="margin-top:14px">Pendientes</h3>${db.adelantos.filter(a=>a.barberoId===bid&&!a.liqId).map(a=>`<div>${fdate(a.fecha)} · ${gs(a.monto)} ${esc(a.nota)}</div>`).join('')||'<p class="muted">Ninguno</p>'}`)}
+function saveAdel(bid){const m=num($('#aM').value);if(!m)return toast('Monto inválido');save('adelantos',{id:uid(),barberoId:bid,fecha:$('#aF').value,monto:m,nota:$('#aN').value});
+ const c=cajaAbierta();if($('#aC').checked&&c){c.movs=c.movs||[];c.movs.push({tipo:'retiro',monto:m,motivo:'Adelanto '+user(bid).nombre,hora:hm(nowMin()),user:me.nombre});save('cajas',c)}
+ audit('Registró adelanto',user(bid).nombre+' '+gs(m));closeModal();render()}
+function guardarLiq(){const L=liqCalc(lqB,lqD1,lqD2);if(!confirm(`Neto a pagar a ${user(lqB).nombre}: ${gs(L.neto)}. ¿Emitir liquidación?`))return;
+ const l=save('liquidaciones',{id:uid(),barberoId:lqB,d1:lqD1,d2:lqD2,fecha:ymd(),t:Date.now(),serv:L.serv,prod:L.prod,com:L.com,prop:L.prop,adel:L.adel,neto:L.neto,det:L.det,por:me.nombre});
+ L.ad.forEach(a=>{a.liqId=l.id;save('adelantos',a)});audit('Emitió liquidación',user(lqB).nombre+' '+gs(L.neto));render();printLiq(l.id)}
+function printLiq(id){const l=get('liquidaciones',id);printHTML(`<div class="tk" style="width:76mm;padding:2mm"><div class="c"><b>${esc(cfg().nombre)}</b><br>RECIBO DE LIQUIDACIÓN</div><hr>Barbero: ${esc((user(l.barberoId)||{}).nombre)}<br>Período: ${fdate(l.d1)} al ${fdate(l.d2)}<br>Emitido: ${fdate(l.fecha)}<hr>
+ <table style="width:100%">${l.det.map(d=>`<tr><td>${fdate(d.fecha).slice(0,5)} ${d.cant} ${esc(d.nombre)}</td><td style="text-align:right">${Math.round(d.com).toLocaleString('es-PY')}</td></tr>`).join('')}</table><hr>
+ <table style="width:100%"><tr><td>Servicios</td><td style="text-align:right">${gs(l.serv)}</td></tr><tr><td>Productos</td><td style="text-align:right">${gs(l.prod)}</td></tr><tr><td>Comisiones</td><td style="text-align:right">${gs(l.com)}</td></tr><tr><td>Propinas</td><td style="text-align:right">${gs(l.prop)}</td></tr><tr><td>Adelantos</td><td style="text-align:right">-${gs(l.adel)}</td></tr><tr><td><b>NETO</b></td><td style="text-align:right"><b>${gs(l.neto)}</b></td></tr></table>
+ <br><br><div class="c">______________________<br>Firma</div></div>`)}
+
+/* ---------- Mi panel (barbero) ---------- */
+V.mipanel=()=>{const h=ymd(),ts=db.turnos.filter(t=>t.barberoId===me.id&&t.fecha===h).sort((a,b)=>a.hora.localeCompare(b.hora));
+ const lastL=db.liquidaciones.filter(l=>l.barberoId===me.id).sort((a,b)=>b.t-a.t)[0],d1=lastL?addDays(lastL.d2,1):'2000-01-01',L=liqCalc(me.id,d1,h),M=liqCalc(me.id,h.slice(0,8)+'01',h);
+ const prox=db.turnos.filter(t=>t.barberoId===me.id&&t.fecha>h&&!['cancelado','noasistio'].includes(t.estado)).sort((a,b)=>(a.fecha+a.hora).localeCompare(b.fecha+b.hora)).slice(0,10);
+ return `<h2>Hola, ${esc(me.nombre)} ✂️</h2><div class="kpis"><div class="kpi"><small>Turnos hoy</small><b>${ts.filter(t=>t.estado!=='cancelado').length}</b></div><div class="kpi"><small>Comisión del mes</small><b>${gs(M.com)}</b></div><div class="kpi"><small>Propinas del mes</small><b>${gs(M.prop)}</b></div><div class="kpi"><small>Pendiente de liquidar</small><b style="color:var(--ok)">${gs(L.neto)}</b><small>${lastL?'desde '+fdate(d1):''}</small></div></div>
+ <div class="card"><h3>Mi agenda de hoy</h3><table>${ts.map(t=>{const c=get('clientes',t.clienteId);return `<tr><td><b>${t.hora}</b></td><td>${esc(cliName(t.clienteId))}${c&&c.notas?`<div class="muted">📝 ${esc(c.notas)}</div>`:''}${c&&c.alergias?`<div class="bad wa">Alergias: ${esc(c.alergias)}</div>`:''}</td><td>${esc(svcNames(t.servicios))}</td><td><span class="bad st-${t.estado}">${EST[t.estado]}</span></td>
+ <td class="r">${['pendiente','confirmado'].includes(t.estado)?`<button class="btn s" onclick="setEst('${t.id}','atencion')">Iniciar</button>`:''}</td></tr>`}).join('')||'<tr><td class="muted">Sin turnos hoy</td></tr>'}</table></div>
+ <div class="card"><h3>Próximos turnos</h3><table>${prox.map(t=>`<tr><td>${fdate(t.fecha)} ${t.hora}</td><td>${esc(cliName(t.clienteId))}</td><td>${esc(svcNames(t.servicios))}</td></tr>`).join('')||'<tr><td class="muted">Ninguno</td></tr>'}</table></div>
+ <div class="card"><h3>Mis servicios del mes</h3><div class="tw" style="max-height:300px;overflow:auto"><table>${M.det.map(d=>`<tr><td>${fdate(d.fecha)}</td><td>${d.cant} ${esc(d.nombre)}</td><td class="r">${gs(d.com)}</td></tr>`).join('')||'<tr><td class="muted">Sin servicios</td></tr>'}</table></div></div>`};
+function setEst(id,e){const t=get('turnos',id);t.estado=e;save('turnos',t);render()}
+
+/* ---------- Catálogo ---------- */
+V.catalogo=()=>{const sv=db.servicios.filter(s=>s.tipo!=='combo'),cb=db.servicios.filter(s=>s.tipo==='combo');
+ return `<h2>Servicios y combos</h2><div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Servicios</h3><button class="btn p" onclick="svcModal()">+ Servicio</button></div><div class="tw"><table><tr><th>Servicio</th><th>Categoría</th><th class="r">Precio</th><th>Por categoría</th><th class="r">Duración</th><th class="r">Limpieza</th><th class="r">Insumo</th><th></th></tr>
+ ${sv.map(s=>`<tr style="${s.activo===false?'opacity:.5':''}"><td><b>${esc(s.nombre)}</b>${s.desc?`<div class="muted">${esc(s.desc)}</div>`:''}</td><td>${esc(s.cat)}</td><td class="r">${gs(s.precio)}</td><td class="muted">${Object.entries(s.precios||{}).filter(x=>+x[1]).map(([k,v])=>k+': '+gs(v)).join('<br>')}</td><td class="r">${s.dur}′</td><td class="r">${s.limp||0}′</td><td class="r">${gs(s.insumo)}</td><td class="r"><button class="btn s" onclick="svcModal('${s.id}')">Editar</button></td></tr>`).join('')}</table></div></div>
+ <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Combos promocionales</h3><button class="btn p" onclick="comboModal()">+ Combo</button></div><table><tr><th>Combo</th><th>Incluye</th><th class="r">Precio normal</th><th class="r">Precio combo</th><th class="r">Duración</th><th></th></tr>
+ ${cb.map(c=>{const n=c.items.reduce((s,i)=>s+(+(svc(i)||{}).precio||0),0);return `<tr style="${c.activo===false?'opacity:.5':''}"><td><b>${esc(c.nombre)}</b></td><td>${esc(svcNames(c.items))}</td><td class="r"><s>${gs(n)}</s></td><td class="r"><b>${gs(c.precio)}</b></td><td class="r">${svcDur([c.id])}′</td><td class="r"><button class="btn s" onclick="comboModal('${c.id}')">Editar</button></td></tr>`}).join('')||'<tr><td class="muted">Sin combos</td></tr>'}</table></div>`};
+function svcModal(id){const s=id?svc(id):{nombre:'',cat:'',precio:0,precios:{},dur:30,limp:5,insumo:0,desc:'',activo:true};
+ openModal(`<h3>${id?'Editar':'Nuevo'} servicio</h3><div class="g2"><div><label>Nombre</label><input id="sN" value="${esc(s.nombre)}"></div><div><label>Categoría</label><input id="sC" list="dlSC" value="${esc(s.cat)}"><datalist id="dlSC">${[...new Set(db.servicios.map(x=>x.cat))].map(c=>`<option value="${esc(c)}">`).join('')}</datalist></div>
+ <div><label>Precio base</label><input id="sP" value="${s.precio}"></div><div><label>Insumo por servicio (se descuenta de la comisión)</label><input id="sI" value="${s.insumo}"></div>
+ <div><label>Duración (min)</label><input id="sD" type="number" value="${s.dur}"></div><div><label>Limpieza/holgura (min)</label><input id="sL" type="number" value="${s.limp||0}"></div></div>
+ <label>Precio diferenciado por categoría de barbero (opcional)</label><div class="g3">${BCATS.map(c=>`<div><label>${c}</label><input class="spc" data-c="${c}" value="${(s.precios||{})[c]||''}"></div>`).join('')}</div>
+ <label>Descripción</label><input id="sX" value="${esc(s.desc||'')}"><label><input type="checkbox" id="sA" ${s.activo!==false?'checked':''}> Activo</label>
+ <div class="btns"><button class="btn p" onclick="saveSvc(${id?`'${id}'`:'null'})">Guardar</button><button class="btn" onclick="closeModal()">Cancelar</button></div>`)}
+function saveSvc(id){const n=$('#sN').value.trim();if(!n)return toast('Nombre requerido');const pr={};$$('.spc').forEach(e=>{if(num(e.value))pr[e.dataset.c]=num(e.value)});const o=id?svc(id):{id:uid(),tipo:'servicio'},op=o.precio;
+ Object.assign(o,{nombre:n,cat:$('#sC').value.trim()||'General',precio:num($('#sP').value),precios:pr,insumo:num($('#sI').value),dur:+$('#sD').value||0,limp:+$('#sL').value||0,desc:$('#sX').value,activo:$('#sA').checked});
+ save('servicios',o);if(id&&op!==o.precio)audit('Modificó precio',`${n}: ${gs(op)} → ${gs(o.precio)}`);closeModal();render()}
+function comboModal(id){const c=id?svc(id):{nombre:'',items:[],precio:0,activo:true};
+ openModal(`<h3>${id?'Editar':'Nuevo'} combo</h3><label>Nombre</label><input id="cN" value="${esc(c.nombre)}" placeholder="Combo Fin de Semana">
+ <label>Servicios incluidos</label><div class="chips">${db.servicios.filter(s=>s.tipo!=='combo').map(s=>`<label><input type="checkbox" class="cbk" value="${s.id}" ${c.items.includes(s.id)?'checked':''}>${esc(s.nombre)} (${gs(s.precio)})</label>`).join('')}</div>
+ <label>Precio especial del combo</label><input id="cP" value="${c.precio}"><label><input type="checkbox" id="cA" ${c.activo!==false?'checked':''}> Activo</label>
+ <div class="btns"><button class="btn p" onclick="saveCombo(${id?`'${id}'`:'null'})">Guardar</button><button class="btn" onclick="closeModal()">Cancelar</button></div>`)}
+function saveCombo(id){const n=$('#cN').value.trim(),it=$$('.cbk:checked').map(e=>e.value);if(!n||it.length<2)return toast('Nombre y al menos 2 servicios');const o=id?svc(id):{id:uid(),tipo:'combo',cat:'Combo'};
+ Object.assign(o,{nombre:n,items:it,precio:num($('#cP').value),activo:$('#cA').checked});save('servicios',o);closeModal();render()}
+
+/* ---------- Inventario ---------- */
+let invT='venta';
+V.inventario=()=>{const l=db.productos.filter(p=>p.tipo===invT);
+ return `<h2>Inventario</h2><div class="card row"><div class="tabs" style="margin:0">${[['venta','Productos de reventa'],['insumo','Insumos internos']].map(([k,t])=>`<button class="btn ${invT===k?'on':''}" onclick="invT='${k}';render()">${t}</button>`).join('')}</div><button class="btn p" onclick="prodModal()">+ Producto</button></div>
+ <div class="card tw"><table><tr><th>Producto</th><th>Proveedor</th><th class="r">Costo</th>${invT==='venta'?'<th class="r">Precio</th><th class="r">Margen</th>':''}<th class="r">Stock</th><th class="r">Mínimo</th><th></th></tr>
+ ${l.map(p=>`<tr><td><b>${esc(p.nombre)}</b></td><td>${esc(p.prov||'')}</td><td class="r">${gs(p.costo)}</td>${invT==='venta'?`<td class="r">${gs(p.precio)}</td><td class="r">${p.precio?Math.round((p.precio-p.costo)/p.precio*100):0}%</td>`:''}
+ <td class="r">${+p.stock<=+p.min?`<span class="bad er">${p.stock}</span>`:p.stock}</td><td class="r">${p.min}</td><td class="r"><button class="btn s ok" onclick="movStock('${p.id}',1)">+ Compra</button> <button class="btn s" onclick="movStock('${p.id}',-1)">− ${invT==='insumo'?'Consumo':'Ajuste'}</button> <button class="btn s" onclick="prodModal('${p.id}')">Editar</button></td></tr>`).join('')||'<tr><td class="muted">Sin productos</td></tr>'}</table></div>
+ <div class="card"><h3>Últimos movimientos</h3><table>${db.productos.flatMap(p=>(p.movs||[]).map(m=>({...m,n:p.nombre}))).sort((a,b)=>b.t-a.t).slice(0,25).map(m=>`<tr><td>${m.f}</td><td>${esc(m.n)}</td><td>${m.c>0?'+':''}${m.c}</td><td>${m.costo?gs(m.costo):''}</td><td class="muted">${esc(m.nota||'')} · ${esc(m.u)}</td></tr>`).join('')||'<tr><td class="muted">Sin movimientos</td></tr>'}</table></div>`};
+function prodModal(id){const p=id?get('productos',id):{nombre:'',tipo:invT,costo:0,precio:0,stock:0,min:0,prov:''};
+ openModal(`<h3>${id?'Editar':'Nuevo'} producto</h3><div class="g2"><div><label>Nombre</label><input id="iN" value="${esc(p.nombre)}"></div><div><label>Tipo</label><select id="iT">${opt('venta','Reventa al público',p.tipo)}${opt('insumo','Insumo interno',p.tipo)}</select></div>
+ <div><label>Precio de costo</label><input id="iC" value="${p.costo}"></div><div><label>Precio de venta</label><input id="iP" value="${p.precio}"></div><div><label>Stock actual</label><input id="iS" type="number" value="${p.stock}" ${id?'readonly title="Usá Compra/Ajuste"':''}></div><div><label>Stock mínimo</label><input id="iM" type="number" value="${p.min}"></div></div>
+ <label>Proveedor</label><input id="iV" value="${esc(p.prov||'')}"><div class="btns"><button class="btn p" onclick="saveProd(${id?`'${id}'`:'null'})">Guardar</button>${id?`<button class="btn d" onclick="if(confirm('¿Eliminar?')){del('productos','${id}');audit('Eliminó producto','${esc(p.nombre.replace(/['"\\]/g,''))}');closeModal();render()}">Eliminar</button>`:''}<button class="btn" onclick="closeModal()">Cancelar</button></div>`)}
+function saveProd(id){const n=$('#iN').value.trim();if(!n)return toast('Nombre requerido');const o=id?get('productos',id):{id:uid(),movs:[]},op=o.precio;
+ Object.assign(o,{nombre:n,tipo:$('#iT').value,costo:num($('#iC').value),precio:num($('#iP').value),min:+$('#iM').value||0,prov:$('#iV').value});if(!id)o.stock=+$('#iS').value||0;
+ save('productos',o);if(id&&op!==o.precio)audit('Modificó precio',`${n}: ${gs(op)} → ${gs(o.precio)}`);closeModal();render()}
+function movStock(id,s){const p=get('productos',id);const c=+prompt((s>0?'Cantidad comprada/ingresada':'Cantidad a descontar')+' de '+p.nombre+':');if(!c||c<0)return;
+ let costo=0;if(s>0){const k=prompt('Costo unitario de esta compra (vacío = mantener '+p.costo+'):');if(k)costo=num(k);if(costo)p.costo=costo}
+ const nota=s>0?(p.prov?'Compra a '+p.prov:'Compra'):(prompt('Motivo:')||'Ajuste');p.stock=(+p.stock||0)+s*c;p.movs=(p.movs||[]).slice(-100);p.movs.push({t:Date.now(),f:fdate(ymd()),c:s*c,costo,nota,u:me.nombre});save('productos',p);if(s<0)audit('Ajuste de stock',`${p.nombre} -${c} ${nota}`);render()}
+
+/* ---------- Gastos y rentabilidad ---------- */
+let fiM=ymd().slice(0,7);
+V.finanzas=()=>{const vs=ventasVal().filter(v=>v.fecha.startsWith(fiM)),bruto=vs.reduce((s,v)=>s+v.total,0);
+ let cmv=0,com=0;vs.forEach(v=>{v.items.filter(i=>i.tipo==='producto').forEach(i=>cmv+=(+(get('productos',i.ref)||{}).costo||0)*i.cant);const c=calcCom(v);for(const b in c)com+=c[b].com});
+ const gs_=db.gastos.filter(g=>g.fecha.startsWith(fiM)),gt=gs_.reduce((s,g)=>s+g.monto,0),porCat={};gs_.forEach(g=>porCat[g.cat]=(porCat[g.cat]||0)+g.monto);const neto=bruto-cmv-com-gt;
+ return `<h2>Gastos y rentabilidad</h2><div class="card row"><label style="margin:0">Mes</label><input type="month" style="width:auto" value="${fiM}" onchange="fiM=this.value;render()"></div>
+ <div class="kpis"><div class="kpi"><small>Ingresos brutos</small><b>${gs(bruto)}</b></div><div class="kpi"><small>Costo de productos vendidos</small><b>-${gs(cmv)}</b></div><div class="kpi"><small>Comisiones</small><b>-${gs(Math.round(com))}</b></div><div class="kpi"><small>Gastos operativos</small><b>-${gs(gt)}</b></div><div class="kpi"><small>Ganancia neta</small><b style="color:${neto>=0?'var(--ok)':'var(--er)'}">${gs(Math.round(neto))}</b><small>${bruto?Math.round(neto/bruto*100):0}% margen</small></div></div>
+ <div class="g2" style="align-items:start"><div class="card"><h3>Registrar gasto</h3><div class="g2"><div><label>Fecha</label><input type="date" id="gF" value="${ymd()}"></div><div><label>Categoría</label><select id="gC">${GCATS.map(c=>opt(c,c)).join('')}</select></div><div><label>Monto</label><input id="gM" inputmode="numeric"></div><div><label>Detalle</label><input id="gD"></div></div>
+ <label><input type="checkbox" id="gK" ${cajaAbierta()?'':'disabled'}> Pagado con efectivo de la caja abierta</label><div class="btns"><button class="btn p" onclick="saveGasto()">Guardar gasto</button></div></div>
+ <div class="card"><h3>Gastos por categoría</h3><table>${Object.entries(porCat).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<tr><td>${c}</td><td class="r">${gs(v)}</td></tr>`).join('')||'<tr><td class="muted">Sin gastos</td></tr>'}</table></div></div>
+ <div class="card tw"><h3>Detalle de gastos</h3><table>${gs_.sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(g=>`<tr><td>${fdate(g.fecha)}</td><td>${g.cat}</td><td>${esc(g.desc)}</td><td>${g.cajaId?'Caja':''}</td><td class="r">${gs(g.monto)}</td><td class="r"><button class="btn s d" onclick="delGasto('${g.id}')">✕</button></td></tr>`).join('')||'<tr><td class="muted">Sin gastos</td></tr>'}</table></div>`};
+function saveGasto(){const m=num($('#gM').value);if(!m)return toast('Monto inválido');const c=cajaAbierta();save('gastos',{id:uid(),fecha:$('#gF').value,cat:$('#gC').value,monto:m,desc:$('#gD').value,cajaId:$('#gK').checked&&c?c.id:'',user:me.nombre});toast('Gasto registrado');render()}
+function delGasto(id){const g=get('gastos',id);if(!confirm('¿Eliminar gasto?'))return;del('gastos',id);audit('Eliminó gasto',`${g.cat} ${gs(g.monto)}`);render()}
+
+/* ---------- Configuración ---------- */
+V.config=()=>{const c=cfg();let fb={};try{fb=JSON.parse(localStorage.getItem('kxb_fb'))||{}}catch(e){}
+ const us=db.usuarios.filter(u=>u.rol!=='barbero');
+ return `<h2>Configuración</h2><div class="card"><h3>Negocio</h3><div class="g2"><div><label>Nombre del local</label><input id="fN" value="${esc(c.nombre)}"></div><div><label>RUC</label><input id="fR" value="${esc(c.ruc||'')}"></div><div><label>Dirección</label><input id="fD" value="${esc(c.dir||'')}"></div><div><label>Teléfono</label><input id="fT" value="${esc(c.tel||'')}"></div></div>
+ <div class="g3"><div><label>Apertura</label><input type="time" id="fA" value="${c.abre}"></div><div><label>Cierre</label><input type="time" id="fC" value="${c.cierra}"></div><div><label>Intervalo agenda (min)</label><select id="fS">${[10,15,20,30].map(x=>opt(x,x,c.slot)).join('')}</select></div>
+ <div><label>Ancho de ticket</label><select id="fK">${opt(80,'80 mm',c.ticket)}${opt(58,'58 mm',c.ticket)}</select></div><div><label>Descuento máx. sin autorización (%)</label><input id="fM" type="number" value="${c.descMax}"></div><div><label>Días para cliente inactivo</label><input id="fI" type="number" value="${c.inactivoDias}"></div>
+ <div><label>Alerta de no-shows a partir de</label><input id="fW" type="number" value="${c.maxNoShow}"></div></div><label>Pie del ticket</label><input id="fP" value="${esc(c.pie||'')}">
+ <div class="btns"><button class="btn p" onclick="saveCfg()">Guardar</button></div></div>
+ <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Usuarios del sistema</h3><button class="btn p" onclick="usrModal()">+ Usuario</button></div><p class="muted">Los barberos se gestionan en “Barberos y comisiones”.</p>
+ <table>${us.map(u=>`<tr><td><b>${esc(u.nombre)}</b></td><td>${u.rol==='admin'?'Administrador/Dueño':'Recepcionista/Cajero'}</td><td>${u.activo!==false?'<span class="bad ok">Activo</span>':'<span class="bad">Inactivo</span>'}</td><td class="r"><button class="btn s" onclick="usrModal('${u.id}')">Editar</button></td></tr>`).join('')}</table></div>
+ <div class="card"><h3>Sincronización web + APK (Firebase)</h3><p class="muted">Pegá la configuración web de tu proyecto Firebase (Firestore + Auth anónima). Usá el mismo ID de empresa en todos los dispositivos.</p>
+ <label>firebaseConfig (JSON)</label><textarea id="fbC" rows="6" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}'>${fb.config?esc(JSON.stringify(fb.config,null,1)):''}</textarea>
+ <label>ID de empresa / sucursal</label><input id="fbE" value="${esc(fb.empresa||'principal')}">
+ <div class="btns"><button class="btn p" onclick="saveFb()">Conectar</button><button class="btn" onclick="pushAll()">⬆ Subir datos locales a la nube</button>${fb.config?'<button class="btn d" onclick="localStorage.removeItem(\'kxb_fb\');location.reload()">Desconectar</button>':''}</div>
+ <p class="muted">Estado: <span class="sync ${syncSt}"></span>${syncSt==='ok'?'Conectado':syncSt==='err'?'Error (revisá config/reglas)':'Modo local (solo este dispositivo)'}</p></div>
+ <div class="card"><h3>Respaldo</h3><div class="btns"><button class="btn" onclick="exportar()">⬇ Exportar respaldo (.json)</button><label class="btn" style="margin:0;color:var(--tx)">⬆ Importar<input type="file" accept=".json" style="display:none" onchange="importar(this)"></label><button class="btn d" onclick="resetDemo()">Borrar todo</button></div></div>`};
+function saveCfg(){Object.assign(cfg(),{nombre:$('#fN').value,ruc:$('#fR').value,dir:$('#fD').value,tel:$('#fT').value,abre:$('#fA').value,cierra:$('#fC').value,slot:+$('#fS').value,ticket:+$('#fK').value,descMax:+$('#fM').value||0,inactivoDias:+$('#fI').value||30,maxNoShow:+$('#fW').value||2,pie:$('#fP').value});save('config',cfg());toast('Configuración guardada');render()}
+function usrModal(id){const u=id?user(id):{nombre:'',rol:'recepcion',pin:'',activo:true};
+ openModal(`<h3>${id?'Editar':'Nuevo'} usuario</h3><label>Nombre</label><input id="uN" value="${esc(u.nombre)}"><label>Rol</label><select id="uR">${opt('admin','Administrador/Dueño',u.rol)}${opt('recepcion','Recepcionista/Cajero',u.rol)}</select>
+ <label>PIN</label><input id="uP" value="${esc(u.pin)}" inputmode="numeric"><label><input type="checkbox" id="uA" ${u.activo!==false?'checked':''}> Activo</label>
+ <div class="btns"><button class="btn p" onclick="saveUsr(${id?`'${id}'`:'null'})">Guardar</button><button class="btn" onclick="closeModal()">Cancelar</button></div>`)}
+function saveUsr(id){const n=$('#uN').value.trim(),p=$('#uP').value.trim();if(!n||!p)return toast('Nombre y PIN requeridos');const o=id?user(id):{id:uid()};Object.assign(o,{nombre:n,rol:$('#uR').value,pin:p,activo:$('#uA').checked});
+ if(!db.usuarios.some(u=>u.id!==o.id&&u.rol==='admin'&&u.activo!==false)&&(o.rol!=='admin'||!o.activo))return toast('Debe quedar al menos un administrador activo');save('usuarios',o);audit('Modificó usuario',n);closeModal();render()}
+function saveFb(){let c;try{let t=$('#fbC').value.trim();t=t.replace(/^[^{]*/,'').replace(/;?\s*$/,'');try{c=JSON.parse(t)}catch(e){c=Function('return '+t)()}}catch(e){return toast('Config inválida')}
+ if(!c||!c.projectId)return toast('Falta projectId');localStorage.setItem('kxb_fb',JSON.stringify({config:c,empresa:$('#fbE').value.trim()||'principal'}));location.reload()}
+function exportar(){const b=new Blob([JSON.stringify(db)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='kevanix-barber-'+ymd()+'.json';a.click()}
+function importar(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.usuarios)throw 0;if(!confirm('¿Reemplazar todos los datos actuales?'))return;db=d;COLS.forEach(c=>db[c]=db[c]||[]);persist();toast('Importado');render()}catch(e){toast('Archivo inválido')}};r.readAsText(f)}
+function resetDemo(){if(!confirm('Se borrarán TODOS los datos de este dispositivo. ¿Continuar?'))return;if(prompt('Escribí BORRAR para confirmar')!=='BORRAR')return;localStorage.removeItem('kxb_db');sessionStorage.clear();location.reload()}
+
+/* ---------- Auditoría ---------- */
+V.audit=()=>`<h2>Auditoría</h2><div class="card tw"><table><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Detalle</th></tr>${db.audit.slice().sort((a,b)=>b.t-a.t).slice(0,400).map(a=>`<tr><td>${a.ts}</td><td>${esc(a.user)}</td><td>${esc(a.acc)}</td><td>${esc(a.det)}</td></tr>`).join('')||'<tr><td class="muted">Sin registros</td></tr>'}</table></div>`;
+
+/* ---------- Inicio ---------- */
+persist();render();initRemote();
+setInterval(()=>{if(me&&['agenda','walkin'].includes(route))softRender()},60000);
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
