@@ -65,8 +65,8 @@ jobs:
                   applicationId = "com.kevanix.barber"
                   minSdk = 24
                   targetSdk = 35
-                  versionCode = 1
-                  versionName = "1.0.0"
+                  versionCode = 3
+                  versionName = "1.2.0"
               }
 
               buildTypes {
@@ -152,6 +152,7 @@ jobs:
           import android.print.PrintAttributes
           import android.print.PrintManager
           import android.webkit.JavascriptInterface
+          import android.webkit.ValueCallback
           import android.webkit.WebChromeClient
           import android.webkit.WebResourceRequest
           import android.webkit.WebResourceResponse
@@ -169,6 +170,7 @@ jobs:
 
               private lateinit var web: WebView
               private var printView: WebView? = null
+              private var fileCb: ValueCallback<Array<Uri>>? = null
               private val startUrl = "https://appassets.androidplatform.net/assets/www/index.html"
 
               @SuppressLint("SetJavaScriptEnabled")
@@ -191,7 +193,17 @@ jobs:
                       userAgentString = "$userAgentString KXBarberApp/1.0"
                   }
                   web.addJavascriptInterface(PrintBridge(), "KXPrint")
-                  web.webChromeClient = WebChromeClient()   // habilita alert / confirm / prompt
+                  web.webChromeClient = object : WebChromeClient() {   // alert / confirm / prompt + elegir fotos
+                      override fun onShowFileChooser(view: WebView, cb: ValueCallback<Array<Uri>>, params: FileChooserParams): Boolean {
+                          fileCb?.onReceiveValue(null)
+                          fileCb = cb
+                          return try {
+                              @Suppress("DEPRECATION") startActivityForResult(params.createIntent(), 1001); true
+                          } catch (e: Exception) {
+                              fileCb = null; false
+                          }
+                      }
+                  }
                   web.webViewClient = object : WebViewClient() {
                       override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? =
                           loader.shouldInterceptRequest(request.url)
@@ -209,6 +221,15 @@ jobs:
                   }
 
                   if (savedInstanceState != null) web.restoreState(savedInstanceState) else web.loadUrl(startUrl)
+              }
+
+              @Deprecated("Deprecated in Java")
+              override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+                  @Suppress("DEPRECATION") super.onActivityResult(requestCode, resultCode, data)
+                  if (requestCode == 1001) {
+                      fileCb?.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(resultCode, data))
+                      fileCb = null
+                  }
               }
 
               override fun onSaveInstanceState(outState: Bundle) {
@@ -253,6 +274,7 @@ jobs:
             curl -fsSL "$B/$f?v=$GITHUB_RUN_ID" -o "$W/$f"
           done
           grep -q flushPend $W/index.html
+          grep -q aPagar $W/index.html
           cp $W/icon-192.png and/app/src/main/res/mipmap/ic_launcher.png
           cp $W/logo.png and/app/src/main/res/mipmap/ic_launcher_round.png
 
